@@ -3,38 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PkmFire車隊報名</title>
+<title>PkmFire車隊</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-100 p-4">
 
-<div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+<body class="bg-black text-white p-4">
 
-<h1 class="text-2xl font-bold mb-4 text-center">✨PkmFire車隊✨</h1>
+<div class="max-w-3xl mx-auto bg-gray-900 p-6 rounded-2xl shadow-2xl">
 
-<h2 class="text-xl font-bold mt-4">🛞 Car1 黃金禮盒混洗車</h2>
-<p>7人成團 | 每位 $2140 | 人齊先付款</p>
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6">
+✨✨PkmFire車隊✨✨
+</h1>
 
-<h2 class="text-xl font-bold mt-6">🛞 Car2 PSA10人車</h2>
-<p>10人成團 | 每位 $350</p>
+<div id="cars"></div>
 
-<form action="https://formspree.io/f/yourformid" method="POST" class="mt-6 space-y-4">
+<div class="mt-8 bg-gray-800 p-4 rounded-xl">
+<h2 class="text-lg font-bold text-center text-yellow-400 mb-4">報名</h2>
 
-<input type="text" name="name" placeholder="姓名" required class="w-full border p-2 rounded">
-<input type="text" name="phone" placeholder="電話" required class="w-full border p-2 rounded">
+<form id="registerForm" class="space-y-4">
+<input type="text" id="name" placeholder="姓名" required class="w-full p-2 rounded bg-gray-700">
+<input type="text" id="phone" placeholder="電話" required class="w-full p-2 rounded bg-gray-700">
 
-<select name="event" class="w-full border p-2 rounded">
-<option>Car1</option>
-<option>Car2</option>
+<select id="carSelect" required class="w-full p-2 rounded bg-gray-700">
+<option value="">選擇車種</option>
+<option value="Car1">Car1</option>
+<option value="Car2">Car2</option>
 </select>
 
-<button type="submit" class="w-full bg-black text-white py-2 rounded">
+<input type="number" id="position" placeholder="選擇位置號碼" required class="w-full p-2 rounded bg-gray-700">
+
+<button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded font-bold">
 提交報名
 </button>
-
 </form>
+</div>
+
+<div class="mt-8 bg-gray-800 p-4 rounded-xl">
+<h2 class="text-yellow-400 font-bold mb-2">已報名名單</h2>
+<div id="list"></div>
+</div>
 
 </div>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://mgcnadtcykoctdwwzpkm.supabase.co",
+  "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
+);
+
+const cars = {
+  Car1: 7,
+  Car2: 10
+};
+
+async function loadData() {
+  const { data } = await supabase.from("registrations").select("*");
+
+  const carDiv = document.getElementById("cars");
+  carDiv.innerHTML = "";
+
+  Object.keys(cars).forEach(car => {
+    const container = document.createElement("div");
+    container.className = "mb-6 border border-yellow-500 p-4 rounded-xl";
+
+    container.innerHTML = `<h2 class="text-yellow-400 font-bold mb-2">${car}</h2>`;
+
+    const grid = document.createElement("div");
+    grid.className = "grid grid-cols-5 gap-2";
+
+    for (let i = 1; i <= cars[car]; i++) {
+      const taken = data.find(d => d.car === car && d.position == i);
+      const btn = document.createElement("div");
+      btn.className = taken
+        ? "bg-red-600 text-center p-2 rounded"
+        : "bg-gray-700 text-center p-2 rounded";
+      btn.innerText = i;
+      grid.appendChild(btn);
+    }
+
+    container.appendChild(grid);
+    carDiv.appendChild(container);
+  });
+
+  const listDiv = document.getElementById("list");
+  listDiv.innerHTML = data.map(d =>
+    `<div class="border-b border-gray-600 py-1">
+      ${d.car} - 位置 ${d.position} - ${d.name}
+    </div>`
+  ).join("");
+}
+
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const car = document.getElementById("carSelect").value;
+  const position = parseInt(document.getElementById("position").value);
+
+  const { data: existing } = await supabase
+    .from("registrations")
+    .select("*")
+    .eq("car", car)
+    .eq("position", position);
+
+  if (existing.length > 0) {
+    alert("這個位置已被選擇！");
+    return;
+  }
+
+  await supabase.from("registrations").insert([
+    { name, phone, car, position }
+  ]);
+
+  document.getElementById("registerForm").reset();
+  loadData();
+});
+
+loadData();
+</script>
 
 </body>
 </html>
