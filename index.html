@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PkmFire車隊</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+
 </head>
 
 <body class="bg-black text-white p-4">
@@ -16,8 +18,10 @@
 ✨✨PkmFire車隊✨✨
 </h1>
 
+<!-- 車位顯示 -->
 <div id="cars"></div>
 
+<!-- 報名表 -->
 <div class="mt-8 bg-gray-800 p-4 rounded-xl">
 <h2 class="text-lg font-bold text-center text-yellow-400 mb-4">報名</h2>
 
@@ -39,6 +43,7 @@
 </form>
 </div>
 
+<!-- 名單 -->
 <div class="mt-8 bg-gray-800 p-4 rounded-xl">
 <h2 class="text-yellow-400 font-bold mb-2">已報名名單</h2>
 <div id="list"></div>
@@ -47,7 +52,9 @@
 </div>
 
 <script>
-const supabase = window.supabase.createClient(
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
@@ -58,7 +65,14 @@ const cars = {
 };
 
 async function loadData() {
-  const { data } = await supabase.from("registrations").select("*");
+  const { data, error } = await supabaseClient
+    .from("registrations")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   const carDiv = document.getElementById("cars");
   carDiv.innerHTML = "";
@@ -74,10 +88,12 @@ async function loadData() {
 
     for (let i = 1; i <= cars[car]; i++) {
       const taken = data.find(d => d.car === car && d.position == i);
+
       const btn = document.createElement("div");
       btn.className = taken
         ? "bg-red-600 text-center p-2 rounded"
         : "bg-gray-700 text-center p-2 rounded";
+
       btn.innerText = i;
       grid.appendChild(btn);
     }
@@ -102,7 +118,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
   const car = document.getElementById("carSelect").value;
   const position = parseInt(document.getElementById("position").value);
 
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseClient
     .from("registrations")
     .select("*")
     .eq("car", car)
@@ -113,7 +129,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     return;
   }
 
-  await supabase.from("registrations").insert([
+  await supabaseClient.from("registrations").insert([
     { name, phone, car, position }
   ]);
 
