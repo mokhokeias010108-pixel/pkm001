@@ -18,7 +18,7 @@
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<!-- 車位顯示 -->
+<!-- 車位區 -->
 <div id="cars"></div>
 
 <!-- 報名表 -->
@@ -78,10 +78,42 @@ async function loadData() {
   carDiv.innerHTML = "";
 
   Object.keys(cars).forEach(car => {
+
+    let description = "";
+
+    if (car === "Car1") {
+      description = `
+        <div class="text-sm text-gray-300 mb-3 space-y-1">
+          <div>🎮 開一盒黃金禮盒混洗</div>
+          <div>🏆 黃金比卡超 x1</div>
+          <div>🎁 金球加配件 x1</div>
+          <div>📦 5包25周年白色卡包代拆</div>
+          <div>🔥 有機會開出生日比卡超 / 噴火龍</div>
+          <div class="text-yellow-400 font-semibold">7人成團｜每位 $2140｜人齊先付款</div>
+        </div>
+      `;
+    }
+
+    if (car === "Car2") {
+      description = `
+        <div class="text-sm text-gray-300 mb-3 space-y-1">
+          <div>🔥 十人成團</div>
+          <div>📦 一盒 M2A 原膜組車</div>
+          <div>🎴 每人一包 M2A 卡包鬥 AR 編號</div>
+          <div>🏆 AR 最大者獲得</div>
+          <div class="text-yellow-400 font-semibold">✨ Sv11B 黑龍 SAR PSA10 ✨</div>
+          <div class="text-yellow-400 font-semibold">每位 $350</div>
+        </div>
+      `;
+    }
+
     const container = document.createElement("div");
     container.className = "mb-6 border border-yellow-500 p-4 rounded-xl";
 
-    container.innerHTML = `<h2 class="text-yellow-400 font-bold mb-2">${car}</h2>`;
+    container.innerHTML = `
+      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
+      ${description}
+    `;
 
     const grid = document.createElement("div");
     grid.className = "grid grid-cols-5 gap-2";
