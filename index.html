@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PkmFire車隊報名</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+
+<h1 class="text-2xl font-bold mb-4 text-center">✨PkmFire車隊✨</h1>
+
+<h2 class="text-xl font-bold mt-4">🛞 Car1 黃金禮盒混洗車</h2>
+<p>7人成團 | 每位 $2140 | 人齊先付款</p>
+
+<h2 class="text-xl font-bold mt-6">🛞 Car2 PSA10人車</h2>
+<p>10人成團 | 每位 $350</p>
+
+<form action="https://formspree.io/f/yourformid" method="POST" class="mt-6 space-y-4">
+
+<input type="text" name="name" placeholder="姓名" required class="w-full border p-2 rounded">
+<input type="text" name="phone" placeholder="電話" required class="w-full border p-2 rounded">
+
+<select name="event" class="w-full border p-2 rounded">
+<option>Car1</option>
+<option>Car2</option>
+</select>
+
+<button type="submit" class="w-full bg-black text-white py-2 rounded">
+提交報名
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
