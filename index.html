@@ -10,19 +10,20 @@
 
 </head>
 
-<body class="bg-black text-white p-4">
+<body class="text-white min-h-screen bg-cover bg-center"
+style="background-image: url('IMG_8859.jpeg');">
 
-<div class="max-w-3xl mx-auto bg-gray-900 p-6 rounded-2xl shadow-2xl">
+<div class="min-h-screen bg-black/70 backdrop-blur-sm p-4">
 
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6">
+<div class="max-w-3xl mx-auto bg-gray-900/80 p-6 rounded-2xl shadow-2xl border border-yellow-500">
+
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6 drop-shadow-lg">
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<!-- 車位區 -->
 <div id="cars"></div>
 
-<!-- 報名表 -->
-<div class="mt-8 bg-gray-800 p-4 rounded-xl">
+<div class="mt-8 bg-gray-800/80 p-4 rounded-xl border border-yellow-500">
 <h2 class="text-lg font-bold text-center text-yellow-400 mb-4">報名</h2>
 
 <form id="registerForm" class="space-y-4">
@@ -37,18 +38,18 @@
 
 <input type="number" id="position" placeholder="選擇位置號碼" required class="w-full p-2 rounded bg-gray-700">
 
-<button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded font-bold">
+<button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded font-bold hover:bg-yellow-400 transition">
 提交報名
 </button>
 </form>
 </div>
 
-<!-- 名單 -->
-<div class="mt-8 bg-gray-800 p-4 rounded-xl">
+<div class="mt-8 bg-gray-800/80 p-4 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-2">已報名名單</h2>
 <div id="list"></div>
 </div>
 
+</div>
 </div>
 
 <script>
@@ -79,40 +80,11 @@ async function loadData() {
 
   Object.keys(cars).forEach(car => {
 
-    let description = "";
-
-    if (car === "Car1") {
-      description = `
-        <div class="text-sm text-gray-300 mb-3 space-y-1">
-          <div>🎮 開一盒黃金禮盒混洗</div>
-          <div>🏆 黃金比卡超 x1</div>
-          <div>🎁 金球加配件 x1</div>
-          <div>📦 5包25周年白色卡包代拆</div>
-          <div>🔥 有機會開出生日比卡超 / 噴火龍</div>
-          <div class="text-yellow-400 font-semibold">7人成團｜每位 $2140｜人齊先付款</div>
-        </div>
-      `;
-    }
-
-    if (car === "Car2") {
-      description = `
-        <div class="text-sm text-gray-300 mb-3 space-y-1">
-          <div>🔥 十人成團</div>
-          <div>📦 一盒 M2A 原膜組車</div>
-          <div>🎴 每人一包 M2A 卡包鬥 AR 編號</div>
-          <div>🏆 AR 最大者獲得</div>
-          <div class="text-yellow-400 font-semibold">✨ Sv11B 黑龍 SAR PSA10 ✨</div>
-          <div class="text-yellow-400 font-semibold">每位 $350</div>
-        </div>
-      `;
-    }
-
     const container = document.createElement("div");
-    container.className = "mb-6 border border-yellow-500 p-4 rounded-xl";
+    container.className = "mb-6 border border-yellow-500 p-4 rounded-xl bg-gray-900/80";
 
     container.innerHTML = `
-      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-      ${description}
+      <h2 class="text-yellow-400 font-bold text-xl mb-3">${car}</h2>
     `;
 
     const grid = document.createElement("div");
@@ -123,7 +95,7 @@ async function loadData() {
 
       const btn = document.createElement("div");
       btn.className = taken
-        ? "bg-red-600 text-center p-2 rounded"
+        ? "bg-red-600 text-center p-2 rounded font-bold"
         : "bg-gray-700 text-center p-2 rounded";
 
       btn.innerText = i;
