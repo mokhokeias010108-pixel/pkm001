@@ -13,11 +13,8 @@
   0%,100% { text-shadow: 0 0 10px gold; }
   50% { text-shadow: 0 0 25px orange; }
 }
-.glow {
-  animation: glow 2s infinite;
-}
+.glow { animation: glow 2s infinite; }
 </style>
-
 </head>
 
 <body class="text-white min-h-screen bg-cover bg-center"
@@ -39,7 +36,7 @@ style="background-image: url('IMG_8859.jpeg');">
 
 <div id="cars"></div>
 
-<!-- 付款資訊 -->
+<!-- 付款方法 -->
 <div class="mt-10 bg-gray-800/80 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
 <p>轉數快識別碼：<span class="text-green-400 font-bold">128392362</span></p>
@@ -79,16 +76,42 @@ let selectedCar = null;
 let selectedPosition = null;
 
 const { createClient } = supabase;
-
 const supabaseClient = createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
 const events = {
-  Car1: { slots: 7 },
-  Car2: { slots: 10 },
-  Car3: { slots: 6 }
+  Car1: {
+    slots: 7,
+    description: `
+🎮 開一盒黃金禮盒混洗
+黃金比卡超 x1
+金球加配件 x1
+5包25周年白色卡包代拆
+(有機會生日比卡超 / 噴火龍)
+🔥 7人成團 | 每位 $2140
+`
+  },
+  Car2: {
+    slots: 10,
+    description: `
+✨ PSA10人車 ✨
+每人一包M2A鬥AR編號
+🏆 AR最大者獲得
+Sv11B黑龍Sar Psa10
+🔥 每位 $350
+`
+  },
+  Car3: {
+    slots: 6,
+    description: `
+🎮 超級M2A跑能車
+12張AR + 5張MA + 1張SR/SAR/MUR
+未達標繼續開
+🔥 每位 $700（保底8包）
+`
+  }
 };
 
 function adminLogin() {
@@ -159,7 +182,8 @@ async function loadData() {
     box.className = "mb-8 bg-gray-900/80 p-5 rounded-xl border border-yellow-500";
 
     box.innerHTML = `
-      <h2 class="text-yellow-400 font-bold text-xl mb-3">${car}</h2>
+      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
+      <pre class="whitespace-pre-wrap text-sm mb-3 text-gray-300">${event.description}</pre>
       <p class="text-green-400 font-bold mb-3">👇🏻 剩餘名額：${remaining}</p>
     `;
 
