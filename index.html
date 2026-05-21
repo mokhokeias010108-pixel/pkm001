@@ -6,8 +6,7 @@
 <title>PkmFire車隊</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="text-white min-h-screen bg-cover bg-center"
@@ -21,93 +20,54 @@ style="background-image: url('IMG_8859.jpeg');">
 ✨✨PkmFire車隊✨✨
 </h1>
 
+<div class="text-right mb-4">
+<button onclick="adminLogin()" class="text-sm text-yellow-400 underline">
+管理員登入
+</button>
+</div>
+
 <div id="cars"></div>
 
-<!-- 付款資訊 -->
 <div class="mt-10 bg-gray-800/80 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
-<p>轉數快識別碼：<span class="text-green-400 font-bold">128392362</span></p>
-<p>銀行：滙豐銀行</p>
-<p>戶口姓名：PkmFire Limited</p>
-
-<div class="mt-4 border-t border-gray-600 pt-4">
-<p>📹 直播時間：5月22號 晚上8點</p>
-<p>IG：PkmFire</p>
-</div>
+<h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
+<div id="list"></div>
 </div>
 
 </div>
 </div>
 
 <script>
-const { createClient } = supabase;
+const ADMIN_PASSWORD = "pkmadmin888";
+let isAdmin = false;
 
-const supabaseClient = createClient(
+const supabase = window.supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
 const events = {
-  Car1: {
-    slots: 7,
-    price: "$2140",
-    description: `
-🛞Car1🛞
-🎮 開一盒黃金禮盒混洗
-獎品：
-黃金比卡超 x1
-金球加配件 x1
-5包25周年白色卡包代拆
-(有機會開出生日比卡超 / 噴火龍)
-
-🔥 7人成團
-🔥 每個位置 $2140
-💵 人齊先付款
-`
-  },
-  Car2: {
-    slots: 10,
-    price: "$350",
-    description: `
-🛞Car2🛞
-✨ PSA10人車 ✨
-
-🔥 十人成團
-🔥 用一盒M2A原膜組車
-🔥 每人一包M2A卡包鬥AR編號
-🏆 AR編號最大者獲得
-✨ Sv11B黑龍Sar Psa10 ✨
-
-🔥 每個位置 $350
-`
-  },
-  Car3: {
-    slots: 6,
-    price: "$700",
-    description: `
-🛞Car3 超級M2A跑能車🛞
-
-🎮 六人開出：
-12張不同AR
-5張MA
-1張 SR/SAR/MUR
-(道具不計)
-
-未達標繼續開到達標
-
-🔥 6人成團
-🔥 每個位置 $700
-💵 保底每人8包
-💵 人齊先付款
-`
-  }
+  Car1: { slots: 7 },
+  Car2: { slots: 10 },
+  Car3: { slots: 6 }
 };
+
+function adminLogin() {
+  const password = prompt("請輸入管理員密碼：");
+  if (password === ADMIN_PASSWORD) {
+    isAdmin = true;
+    alert("已進入管理模式");
+    loadData();
+  } else {
+    alert("密碼錯誤");
+  }
+}
 
 async function loadData() {
 
-  const { data } = await supabaseClient
+  const { data } = await supabase
     .from("registrations")
-    .select("*");
+    .select("*")
+    .order("car", { ascending: true });
 
   const container = document.getElementById("cars");
   container.innerHTML = "";
@@ -123,29 +83,81 @@ async function loadData() {
 
     box.innerHTML = `
       <h2 class="text-yellow-400 font-bold text-xl mb-3">${car}</h2>
-      <pre class="whitespace-pre-wrap text-sm mb-4">${event.description}</pre>
-      <p class="text-green-400 font-bold">👇🏻 剩餘名額：${remaining}</p>
+      <p class="text-green-400 font-bold mb-2">👇🏻 剩餘名額：${remaining}</p>
     `;
 
     const grid = document.createElement("div");
-    grid.className = "grid grid-cols-5 gap-2 mt-3";
+    grid.className = "grid grid-cols-5 gap-2";
 
     for (let i = 1; i <= event.slots; i++) {
+
       const taken = data.find(d => d.car === car && d.position == i);
 
-      const slot = document.createElement("div");
-      slot.className = taken
-        ? "bg-red-600 text-center p-2 rounded font-bold"
-        : "bg-gray-700 text-center p-2 rounded";
+      const btn = document.createElement("button");
+      btn.innerText = i;
 
-      slot.innerText = i;
-      grid.appendChild(slot);
+      if (taken) {
+        btn.className = "bg-red-600 p-2 rounded font-bold";
+      } else {
+        btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
+        btn.onclick = () => register(car, i);
+      }
+
+      grid.appendChild(btn);
     }
 
     box.appendChild(grid);
     container.appendChild(box);
   });
 
+  // 名單區
+  document.getElementById("list").innerHTML = data.map(d => `
+    <div class="border-b border-gray-600 py-2 flex justify-between items-center">
+      <div>
+        ${d.car} - 位置 ${d.position} - ${d.name}
+        ${isAdmin ? `<div class="text-xs text-gray-400">電話：${d.phone}</div>` : ""}
+      </div>
+      ${isAdmin ? `<button onclick="deleteEntry(${d.id})" class="bg-red-500 px-2 py-1 rounded text-sm">刪除</button>` : ""}
+    </div>
+  `).join("");
+}
+
+async function register(car, position) {
+
+  const name = prompt("請輸入姓名：");
+  if (!name) return;
+
+  const phone = prompt("請輸入電話號碼：");
+  if (!phone) return;
+
+  const { data: existing } = await supabase
+    .from("registrations")
+    .select("*")
+    .eq("car", car)
+    .eq("position", position);
+
+  if (existing.length > 0) {
+    alert("此位置已被選擇！");
+    return;
+  }
+
+  await supabase.from("registrations").insert([
+    { name, phone, car, position }
+  ]);
+
+  alert("報名成功！");
+  loadData();
+}
+
+async function deleteEntry(id) {
+  if (!confirm("確定要刪除這筆報名？")) return;
+
+  await supabase
+    .from("registrations")
+    .delete()
+    .eq("id", id);
+
+  loadData();
 }
 
 loadData();
