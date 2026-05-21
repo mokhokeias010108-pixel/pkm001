@@ -6,7 +6,8 @@
 <title>PkmFire車隊</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+
 </head>
 
 <body class="text-white min-h-screen bg-cover bg-center"
@@ -40,7 +41,9 @@ style="background-image: url('IMG_8859.jpeg');">
 const ADMIN_PASSWORD = "pkmadmin888";
 let isAdmin = false;
 
-const supabase = window.supabase.createClient(
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
@@ -64,13 +67,11 @@ function adminLogin() {
 
 async function loadData() {
 
-  let data = [];
+  const { data, error } = await supabaseClient
+    .from("registrations")
+    .select("*");
 
-  const response = await supabase.from("registrations").select("*");
-
-  if (!response.error) {
-    data = response.data;
-  }
+  let registrations = data || [];
 
   const container = document.getElementById("cars");
   container.innerHTML = "";
@@ -78,7 +79,7 @@ async function loadData() {
   Object.keys(events).forEach(car => {
 
     const event = events[car];
-    const takenCount = data.filter(d => d.car === car).length;
+    const takenCount = registrations.filter(d => d.car === car).length;
     const remaining = event.slots - takenCount;
 
     const box = document.createElement("div");
@@ -94,7 +95,7 @@ async function loadData() {
 
     for (let i = 1; i <= event.slots; i++) {
 
-      const taken = data.find(d => d.car === car && d.position == i);
+      const taken = registrations.find(d => d.car === car && d.position == i);
 
       const btn = document.createElement("button");
       btn.innerText = i;
@@ -113,7 +114,7 @@ async function loadData() {
     container.appendChild(box);
   });
 
-  document.getElementById("list").innerHTML = data.map(d => `
+  document.getElementById("list").innerHTML = registrations.map(d => `
     <div class="border-b border-gray-600 py-2 flex justify-between items-center">
       <div>
         ${d.car} - 位置 ${d.position} - ${d.name}
@@ -132,18 +133,18 @@ async function register(car, position) {
   const phone = prompt("請輸入電話號碼：");
   if (!phone) return;
 
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseClient
     .from("registrations")
     .select("*")
     .eq("car", car)
     .eq("position", position);
 
-  if (existing && existing.length > 0) {
+  if (existing.length > 0) {
     alert("此位置已被選擇！");
     return;
   }
 
-  await supabase.from("registrations").insert([
+  await supabaseClient.from("registrations").insert([
     { name, phone, car, position }
   ]);
 
@@ -154,7 +155,11 @@ async function register(car, position) {
 async function deleteEntry(id) {
   if (!confirm("確定刪除？")) return;
 
-  await supabase.from("registrations").delete().eq("id", id);
+  await supabaseClient
+    .from("registrations")
+    .delete()
+    .eq("id", id);
+
   loadData();
 }
 
