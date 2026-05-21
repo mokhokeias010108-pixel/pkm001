@@ -64,10 +64,13 @@ function adminLogin() {
 
 async function loadData() {
 
-  const { data } = await supabase
-    .from("registrations")
-    .select("*")
-    .order("car", { ascending: true });
+  let data = [];
+
+  const response = await supabase.from("registrations").select("*");
+
+  if (!response.error) {
+    data = response.data;
+  }
 
   const container = document.getElementById("cars");
   container.innerHTML = "";
@@ -110,7 +113,6 @@ async function loadData() {
     container.appendChild(box);
   });
 
-  // 名單區
   document.getElementById("list").innerHTML = data.map(d => `
     <div class="border-b border-gray-600 py-2 flex justify-between items-center">
       <div>
@@ -136,7 +138,7 @@ async function register(car, position) {
     .eq("car", car)
     .eq("position", position);
 
-  if (existing.length > 0) {
+  if (existing && existing.length > 0) {
     alert("此位置已被選擇！");
     return;
   }
@@ -150,13 +152,9 @@ async function register(car, position) {
 }
 
 async function deleteEntry(id) {
-  if (!confirm("確定要刪除這筆報名？")) return;
+  if (!confirm("確定刪除？")) return;
 
-  await supabase
-    .from("registrations")
-    .delete()
-    .eq("id", id);
-
+  await supabase.from("registrations").delete().eq("id", id);
   loadData();
 }
 
