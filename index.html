@@ -7,6 +7,17 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+
+<style>
+@keyframes glow {
+  0%,100% { text-shadow: 0 0 10px gold; }
+  50% { text-shadow: 0 0 25px orange; }
+}
+.glow {
+  animation: glow 2s infinite;
+}
+</style>
+
 </head>
 
 <body class="text-white min-h-screen bg-cover bg-center"
@@ -16,7 +27,7 @@ style="background-image: url('IMG_8859.jpeg');">
 
 <div class="max-w-4xl mx-auto bg-gray-900/90 p-6 rounded-2xl shadow-2xl border border-yellow-500">
 
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6">
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6 glow">
 ✨✨PkmFire車隊✨✨
 </h1>
 
@@ -28,20 +39,18 @@ style="background-image: url('IMG_8859.jpeg');">
 
 <div id="cars"></div>
 
-<!-- 付款方法 -->
+<!-- 付款資訊 -->
 <div class="mt-10 bg-gray-800/80 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
 <p>轉數快識別碼：<span class="text-green-400 font-bold">128392362</span></p>
 <p>銀行：滙豐銀行</p>
 <p>戶口姓名：PkmFire Limited</p>
-
 <div class="mt-4 border-t border-gray-600 pt-4">
 <p>📹 直播時間：5月22號 晚上8點</p>
 <p>IG：PkmFire</p>
 </div>
 </div>
 
-<!-- 名單 -->
 <div class="mt-10 bg-gray-800/80 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
 <div id="list"></div>
@@ -50,9 +59,24 @@ style="background-image: url('IMG_8859.jpeg');">
 </div>
 </div>
 
+<!-- 彈窗 -->
+<div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
+  <div class="bg-gray-900 p-6 rounded-xl w-80 border border-yellow-500">
+    <h2 class="text-yellow-400 font-bold mb-4">報名資料</h2>
+    <input id="modalName" placeholder="姓名" class="w-full mb-3 p-2 rounded bg-gray-700">
+    <input id="modalPhone" placeholder="電話" class="w-full mb-4 p-2 rounded bg-gray-700">
+    <div class="flex justify-between">
+      <button onclick="closeModal()" class="bg-gray-600 px-3 py-1 rounded">取消</button>
+      <button onclick="submitModal()" class="bg-yellow-500 text-black px-3 py-1 rounded font-bold">提交</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const ADMIN_PASSWORD = "pkmadmin888";
 let isAdmin = false;
+let selectedCar = null;
+let selectedPosition = null;
 
 const { createClient } = supabase;
 
@@ -62,47 +86,9 @@ const supabaseClient = createClient(
 );
 
 const events = {
-  Car1: {
-    slots: 7,
-    description: `
-🎮 開一盒黃金禮盒混洗
-黃金比卡超 x1
-金球加配件 x1
-5包25周年白色卡包代拆
-(有機會生日比卡超 / 噴火龍)
-
-🔥 7人成團
-🔥 每個位置 $2140
-💵 人齊先付款
-`
-  },
-  Car2: {
-    slots: 10,
-    description: `
-✨ PSA10人車 ✨
-🔥 十人成團
-🔥 每人一包M2A卡包鬥AR編號
-🏆 AR最大者獲得
-✨ Sv11B黑龍Sar Psa10 ✨
-
-🔥 每個位置 $350
-`
-  },
-  Car3: {
-    slots: 6,
-    description: `
-🎮 超級M2A跑能車
-六人開出：
-12張不同AR
-5張MA
-1張SR/SAR/MUR
-未達標繼續開
-
-🔥 6人成團
-🔥 每個位置 $700
-💵 保底每人8包
-`
-  }
+  Car1: { slots: 7 },
+  Car2: { slots: 10 },
+  Car3: { slots: 6 }
 };
 
 function adminLogin() {
@@ -111,17 +97,53 @@ function adminLogin() {
     isAdmin = true;
     alert("已進入管理模式");
     loadData();
-  } else {
-    alert("密碼錯誤");
   }
+}
+
+function openModal(car, position) {
+  selectedCar = car;
+  selectedPosition = position;
+  document.getElementById("modal").classList.remove("hidden");
+  document.getElementById("modal").classList.add("flex");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.add("hidden");
+}
+
+async function submitModal() {
+
+  const name = document.getElementById("modalName").value;
+  const phone = document.getElementById("modalPhone").value;
+
+  if (!name || !phone) {
+    alert("請填寫完整資料");
+    return;
+  }
+
+  const { data: existing } = await supabaseClient
+    .from("registrations")
+    .select("*")
+    .eq("car", selectedCar)
+    .eq("position", selectedPosition);
+
+  if (existing.length > 0) {
+    alert("此位置已被選擇！");
+    closeModal();
+    return;
+  }
+
+  await supabaseClient.from("registrations").insert([
+    { name, phone, car: selectedCar, position: selectedPosition }
+  ]);
+
+  closeModal();
+  loadData();
 }
 
 async function loadData() {
 
-  const { data } = await supabaseClient
-    .from("registrations")
-    .select("*");
-
+  const { data } = await supabaseClient.from("registrations").select("*");
   const registrations = data || [];
 
   const container = document.getElementById("cars");
@@ -138,7 +160,6 @@ async function loadData() {
 
     box.innerHTML = `
       <h2 class="text-yellow-400 font-bold text-xl mb-3">${car}</h2>
-      <pre class="whitespace-pre-wrap text-sm mb-3">${event.description}</pre>
       <p class="text-green-400 font-bold mb-3">👇🏻 剩餘名額：${remaining}</p>
     `;
 
@@ -155,8 +176,8 @@ async function loadData() {
       if (taken) {
         btn.className = "bg-red-600 p-2 rounded font-bold";
       } else {
-        btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-        btn.onclick = () => register(car, i);
+        btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black transition";
+        btn.onclick = () => openModal(car, i);
       }
 
       grid.appendChild(btn);
@@ -167,52 +188,11 @@ async function loadData() {
   });
 
   document.getElementById("list").innerHTML = registrations.map(d => `
-    <div class="border-b border-gray-600 py-2 flex justify-between items-center">
-      <div>
-        ${d.car} - 位置 ${d.position} - ${d.name}
-        ${isAdmin ? `<div class="text-xs text-gray-400">電話：${d.phone}</div>` : ""}
-      </div>
-      ${isAdmin ? `<button onclick="deleteEntry(${d.id})" class="bg-red-500 px-2 py-1 rounded text-sm">刪除</button>` : ""}
+    <div class="border-b border-gray-600 py-2">
+      ${d.car} - 位置 ${d.position} - ${d.name}
+      ${isAdmin ? `<div class="text-xs text-gray-400">電話：${d.phone}</div>` : ""}
     </div>
   `).join("");
-}
-
-async function register(car, position) {
-
-  const name = prompt("請輸入姓名：");
-  if (!name) return;
-
-  const phone = prompt("請輸入電話號碼：");
-  if (!phone) return;
-
-  const { data: existing } = await supabaseClient
-    .from("registrations")
-    .select("*")
-    .eq("car", car)
-    .eq("position", position);
-
-  if (existing.length > 0) {
-    alert("此位置已被選擇！");
-    return;
-  }
-
-  await supabaseClient.from("registrations").insert([
-    { name, phone, car, position }
-  ]);
-
-  alert("報名成功！");
-  loadData();
-}
-
-async function deleteEntry(id) {
-  if (!confirm("確定刪除？")) return;
-
-  await supabaseClient
-    .from("registrations")
-    .delete()
-    .eq("id", id);
-
-  loadData();
 }
 
 loadData();
