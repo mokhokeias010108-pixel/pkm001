@@ -66,6 +66,7 @@ const supabaseClient = supabase.createClient(
 );
 
 const events = {
+
   Car1: {
     slots: 7,
     description: `
@@ -77,6 +78,7 @@ const events = {
 🔥 7人成團 | 每位 $2140
 `
   },
+
   Car2: {
     slots: 10,
     description: `
@@ -87,6 +89,7 @@ Sv11B黑龍Sar Psa10
 🔥 每位 $350
 `
   },
+
   Car3: {
     slots: 6,
     description: `
@@ -95,7 +98,19 @@ Sv11B黑龍Sar Psa10
 未達標繼續開
 🔥 每位 $700（保底8包）
 `
+  },
+
+  Car4: {
+    slots: 6,
+    description: `
+🛞 M5混洗車
+🔥 6人成團
+🔥 用一盒M5組車
+🔥 每人5包
+🔥 每個位置 $145
+`
   }
+
 };
 
 function adminLogin(){
@@ -180,11 +195,9 @@ async function loadData(){
 
         if(takenSlot){
           btn.className = "bg-red-600 p-2 rounded font-bold";
-
           if(isAdmin){
             btn.onclick = ()=>deleteRegistration(car,i);
           }
-
         }else{
           btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
           btn.onclick = ()=>register(car,i);
