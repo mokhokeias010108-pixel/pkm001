@@ -33,6 +33,22 @@
 
 <div id="cars"></div>
 
+<!-- 付款方法 -->
+<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
+<p>轉數快識別碼：<span class="text-green-400 font-bold">128392362</span></p>
+<p>銀行：滙豐銀行</p>
+<p>戶口姓名：PkmFire Limited</p>
+</div>
+
+<!-- 直播時間 -->
+<div class="mt-6 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-3">📹 直播時間</h2>
+<p>5月22號 晚上8點</p>
+<p>IG：PkmFire</p>
+</div>
+
+<!-- 已報名 -->
 <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
 <div id="list"></div>
@@ -50,23 +66,49 @@ const supabaseClient = supabase.createClient(
 );
 
 const events = {
-  Car1: { slots: 7, description: "7人成團 | 每位 $2140" },
-  Car2: { slots: 10, description: "PSA10人車 | 每位 $350" },
-  Car3: { slots: 6, description: "超級M2A跑能車 | 每位 $700" }
+  Car1: {
+    slots: 7,
+    description: `
+🎮 開一盒黃金禮盒混洗
+黃金比卡超 x1
+金球加配件 x1
+5包25周年白色卡包代拆
+(有機會生日比卡超 / 噴火龍)
+🔥 7人成團 | 每位 $2140
+`
+  },
+  Car2: {
+    slots: 10,
+    description: `
+✨ PSA10人車 ✨
+每人一包M2A鬥AR編號
+🏆 AR最大者獲得
+Sv11B黑龍Sar Psa10
+🔥 每位 $350
+`
+  },
+  Car3: {
+    slots: 6,
+    description: `
+🎮 超級M2A跑能車
+12張AR + 5張MA + 1張SR/SAR/MUR
+未達標繼續開
+🔥 每位 $700（保底8包）
+`
+  }
 };
 
 function adminLogin(){
   const pw = prompt("輸入管理員密碼");
   if(pw === ADMIN_PASSWORD){
     isAdmin = true;
-    alert("已進入管理模式");
+    alert("✅ 已進入管理模式");
     loadData();
   }
 }
 
 async function deleteRegistration(car, position){
   if(!isAdmin) return;
-
   if(!confirm(`刪除 ${car} 位置 ${position}?`)) return;
 
   await supabaseClient
@@ -79,7 +121,6 @@ async function deleteRegistration(car, position){
 }
 
 async function register(car, position){
-
   const name = prompt("姓名");
   const phone = prompt("電話");
   if(!name || !phone) return;
@@ -94,15 +135,9 @@ async function register(car, position){
 async function loadData(){
 
   try{
-
-    const { data, error } = await supabaseClient
+    const { data } = await supabaseClient
       .from("registrations")
       .select("*");
-
-    if(error){
-      console.error(error);
-      return;
-    }
 
     const registrations = data || [];
     const container = document.getElementById("cars");
@@ -118,8 +153,8 @@ async function loadData(){
 
       box.innerHTML = `
         <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-        <p class="text-gray-400 mb-2">${events[car].description}</p>
-        <p class="text-green-400 font-bold mb-3">剩餘名額：${remaining}</p>
+        <pre class="whitespace-pre-wrap text-gray-300 text-sm mb-3">${events[car].description}</pre>
+        <p class="text-green-400 font-bold mb-3">👇🏻 剩餘名額：${remaining}</p>
       `;
 
       const grid = document.createElement("div");
@@ -149,7 +184,6 @@ async function loadData(){
 
       box.appendChild(grid);
       container.appendChild(box);
-
     });
 
     document.getElementById("list").innerHTML =
@@ -160,7 +194,7 @@ async function loadData(){
       `).join("");
 
   }catch(e){
-    console.error("系統錯誤:",e);
+    console.error(e);
   }
 }
 
