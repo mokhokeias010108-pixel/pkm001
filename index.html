@@ -103,7 +103,7 @@ function adminLogin(){
   if(pw === ADMIN_PASSWORD){
     isAdmin = true;
     alert("✅ 已進入管理模式");
-    loadData();
+    setTimeout(loadData, 100);
   }
 }
 
@@ -201,12 +201,15 @@ async function loadData(){
       registrations.map(r=>`
         <div class="border-b border-gray-700 py-2">
           ${r.car} - 位置 ${r.position} - ${r.name}
-          ${isAdmin ? `<div class="text-xs text-gray-400">電話：${r.phone}</div>` : ""}
+          ${isAdmin && r.phone ? `
+            <div class="text-xs text-green-400 font-bold">
+              📞 電話：${r.phone}
+            </div>` : ""}
         </div>
       `).join("");
 
   }catch(e){
-    console.error(e);
+    console.error("系統錯誤:", e);
   }
 }
 
