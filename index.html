@@ -1,74 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-HK">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PkmFire車隊</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
-
-<style>
-@keyframes glow {
-  0%,100% { text-shadow: 0 0 10px gold; }
-  50% { text-shadow: 0 0 25px orange; }
-}
-.glow { animation: glow 2s infinite; }
-</style>
-</head>
-
-<body class="text-white min-h-screen bg-cover bg-center"
-style="background-image: url('IMG_8859.jpeg');">
-
-<div class="min-h-screen bg-black/70 backdrop-blur-sm p-4">
-
-<div class="max-w-4xl mx-auto bg-gray-900/90 p-6 rounded-2xl shadow-2xl border border-yellow-500">
-
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6 glow">
-✨✨PkmFire車隊✨✨
-</h1>
-
-<div class="text-right mb-4">
-<button onclick="adminLogin()" class="text-sm text-yellow-400 underline">
-管理員登入
-</button>
-</div>
-
-<div id="cars"></div>
-
-<!-- 付款方法 -->
-<div class="mt-10 bg-gray-800/80 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
-<p>轉數快識別碼：<span class="text-green-400 font-bold">128392362</span></p>
-<p>銀行：滙豐銀行</p>
-<p>戶口姓名：PkmFire Limited</p>
-<div class="mt-4 border-t border-gray-600 pt-4">
-<p>📹 直播時間：5月22號 晚上8點</p>
-<p>IG：PkmFire</p>
-</div>
-</div>
-
-<div class="mt-10 bg-gray-800/80 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
-<div id="list"></div>
-</div>
-
-</div>
-</div>
-
-<!-- 彈窗 -->
-<div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
-  <div class="bg-gray-900 p-6 rounded-xl w-80 border border-yellow-500">
-    <h2 class="text-yellow-400 font-bold mb-4">報名資料</h2>
-    <input id="modalName" placeholder="姓名" class="w-full mb-3 p-2 rounded bg-gray-700">
-    <input id="modalPhone" placeholder="電話" class="w-full mb-4 p-2 rounded bg-gray-700">
-    <div class="flex justify-between">
-      <button onclick="closeModal()" class="bg-gray-600 px-3 py-1 rounded">取消</button>
-      <button onclick="submitModal()" class="bg-yellow-500 text-black px-3 py-1 rounded font-bold">提交</button>
-    </div>
-  </div>
-</div>
-
 <script>
 const ADMIN_PASSWORD = "pkmadmin888";
 let isAdmin = false;
@@ -118,7 +47,7 @@ function adminLogin() {
   const password = prompt("請輸入管理員密碼：");
   if (password === ADMIN_PASSWORD) {
     isAdmin = true;
-    alert("已進入管理模式");
+    alert("✅ 已進入管理模式");
     loadData();
   }
 }
@@ -164,6 +93,22 @@ async function submitModal() {
   loadData();
 }
 
+async function deleteRegistration(car, position) {
+
+  if (!isAdmin) return;
+
+  const confirmDelete = confirm(`確定刪除 ${car} 位置 ${position} 嗎？`);
+  if (!confirmDelete) return;
+
+  await supabaseClient
+    .from("registrations")
+    .delete()
+    .eq("car", car)
+    .eq("position", position);
+
+  loadData();
+}
+
 async function loadData() {
 
   const { data } = await supabaseClient.from("registrations").select("*");
@@ -193,12 +138,17 @@ async function loadData() {
     for (let i = 1; i <= event.slots; i++) {
 
       const taken = registrations.find(d => d.car === car && d.position == i);
-
       const btn = document.createElement("button");
       btn.innerText = i;
 
       if (taken) {
         btn.className = "bg-red-600 p-2 rounded font-bold";
+
+        if (isAdmin) {
+          btn.classList.add("hover:bg-red-800");
+          btn.onclick = () => deleteRegistration(car, i);
+        }
+
       } else {
         btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black transition";
         btn.onclick = () => openModal(car, i);
@@ -221,6 +171,3 @@ async function loadData() {
 
 loadData();
 </script>
-
-</body>
-</html>
