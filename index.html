@@ -1,104 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PkmFire車隊</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+
+<style>
+@keyframes glow {
+  0%,100% { text-shadow: 0 0 10px gold; }
+  50% { text-shadow: 0 0 25px orange; }
+}
+.glow { animation: glow 2s infinite; }
+</style>
+</head>
+
+<body class="text-white min-h-screen bg-gray-950">
+
+<div class="p-4 max-w-4xl mx-auto">
+
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6 glow">
+✨✨PkmFire車隊✨✨
+</h1>
+
+<div class="text-right mb-4">
+<button onclick="adminLogin()" class="text-sm text-yellow-400 underline">
+管理員登入
+</button>
+</div>
+
+<div id="cars"></div>
+
+<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
+<div id="list"></div>
+</div>
+
+</div>
+
 <script>
 const ADMIN_PASSWORD = "pkmadmin888";
 let isAdmin = false;
-let selectedCar = null;
-let selectedPosition = null;
 
-const { createClient } = supabase;
-const supabaseClient = createClient(
+const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
 const events = {
-  Car1: {
-    slots: 7,
-    description: `
-🎮 開一盒黃金禮盒混洗
-黃金比卡超 x1
-金球加配件 x1
-5包25周年白色卡包代拆
-(有機會生日比卡超 / 噴火龍)
-🔥 7人成團 | 每位 $2140
-`
-  },
-  Car2: {
-    slots: 10,
-    description: `
-✨ PSA10人車 ✨
-每人一包M2A鬥AR編號
-🏆 AR最大者獲得
-Sv11B黑龍Sar Psa10
-🔥 每位 $350
-`
-  },
-  Car3: {
-    slots: 6,
-    description: `
-🎮 超級M2A跑能車
-12張AR + 5張MA + 1張SR/SAR/MUR
-未達標繼續開
-🔥 每位 $700（保底8包）
-`
-  }
+  Car1: { slots: 7, description: "7人成團 | 每位 $2140" },
+  Car2: { slots: 10, description: "PSA10人車 | 每位 $350" },
+  Car3: { slots: 6, description: "超級M2A跑能車 | 每位 $700" }
 };
 
-function adminLogin() {
-  const password = prompt("請輸入管理員密碼：");
-  if (password === ADMIN_PASSWORD) {
+function adminLogin(){
+  const pw = prompt("輸入管理員密碼");
+  if(pw === ADMIN_PASSWORD){
     isAdmin = true;
-    alert("✅ 已進入管理模式");
+    alert("已進入管理模式");
     loadData();
   }
 }
 
-function openModal(car, position) {
-  selectedCar = car;
-  selectedPosition = position;
-  document.getElementById("modal").classList.remove("hidden");
-  document.getElementById("modal").classList.add("flex");
-}
+async function deleteRegistration(car, position){
+  if(!isAdmin) return;
 
-function closeModal() {
-  document.getElementById("modal").classList.add("hidden");
-}
-
-async function submitModal() {
-
-  const name = document.getElementById("modalName").value;
-  const phone = document.getElementById("modalPhone").value;
-
-  if (!name || !phone) {
-    alert("請填寫完整資料");
-    return;
-  }
-
-  const { data: existing } = await supabaseClient
-    .from("registrations")
-    .select("*")
-    .eq("car", selectedCar)
-    .eq("position", selectedPosition);
-
-  if (existing.length > 0) {
-    alert("此位置已被選擇！");
-    closeModal();
-    return;
-  }
-
-  await supabaseClient.from("registrations").insert([
-    { name, phone, car: selectedCar, position: selectedPosition }
-  ]);
-
-  closeModal();
-  loadData();
-}
-
-async function deleteRegistration(car, position) {
-
-  if (!isAdmin) return;
-
-  const confirmDelete = confirm(`確定刪除 ${car} 位置 ${position} 嗎？`);
-  if (!confirmDelete) return;
+  if(!confirm(`刪除 ${car} 位置 ${position}?`)) return;
 
   await supabaseClient
     .from("registrations")
@@ -109,65 +78,94 @@ async function deleteRegistration(car, position) {
   loadData();
 }
 
-async function loadData() {
+async function register(car, position){
 
-  const { data } = await supabaseClient.from("registrations").select("*");
-  const registrations = data || [];
+  const name = prompt("姓名");
+  const phone = prompt("電話");
+  if(!name || !phone) return;
 
-  const container = document.getElementById("cars");
-  container.innerHTML = "";
+  await supabaseClient.from("registrations").insert([
+    { name, phone, car, position }
+  ]);
 
-  Object.keys(events).forEach(car => {
+  loadData();
+}
 
-    const event = events[car];
-    const takenCount = registrations.filter(d => d.car === car).length;
-    const remaining = event.slots - takenCount;
+async function loadData(){
 
-    const box = document.createElement("div");
-    box.className = "mb-8 bg-gray-900/80 p-5 rounded-xl border border-yellow-500";
+  try{
 
-    box.innerHTML = `
-      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-      <pre class="whitespace-pre-wrap text-sm mb-3 text-gray-300">${event.description}</pre>
-      <p class="text-green-400 font-bold mb-3">👇🏻 剩餘名額：${remaining}</p>
-    `;
+    const { data, error } = await supabaseClient
+      .from("registrations")
+      .select("*");
 
-    const grid = document.createElement("div");
-    grid.className = "grid grid-cols-5 gap-2";
-
-    for (let i = 1; i <= event.slots; i++) {
-
-      const taken = registrations.find(d => d.car === car && d.position == i);
-      const btn = document.createElement("button");
-      btn.innerText = i;
-
-      if (taken) {
-        btn.className = "bg-red-600 p-2 rounded font-bold";
-
-        if (isAdmin) {
-          btn.classList.add("hover:bg-red-800");
-          btn.onclick = () => deleteRegistration(car, i);
-        }
-
-      } else {
-        btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black transition";
-        btn.onclick = () => openModal(car, i);
-      }
-
-      grid.appendChild(btn);
+    if(error){
+      console.error(error);
+      return;
     }
 
-    box.appendChild(grid);
-    container.appendChild(box);
-  });
+    const registrations = data || [];
+    const container = document.getElementById("cars");
+    container.innerHTML = "";
 
-  document.getElementById("list").innerHTML = registrations.map(d => `
-    <div class="border-b border-gray-600 py-2">
-      ${d.car} - 位置 ${d.position} - ${d.name}
-      ${isAdmin ? `<div class="text-xs text-gray-400">電話：${d.phone}</div>` : ""}
-    </div>
-  `).join("");
+    Object.keys(events).forEach(car => {
+
+      const taken = registrations.filter(r => r.car === car);
+      const remaining = events[car].slots - taken.length;
+
+      const box = document.createElement("div");
+      box.className = "mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500";
+
+      box.innerHTML = `
+        <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
+        <p class="text-gray-400 mb-2">${events[car].description}</p>
+        <p class="text-green-400 font-bold mb-3">剩餘名額：${remaining}</p>
+      `;
+
+      const grid = document.createElement("div");
+      grid.className = "grid grid-cols-5 gap-2";
+
+      for(let i=1;i<=events[car].slots;i++){
+
+        const takenSlot = registrations.find(r=>r.car===car && r.position==i);
+
+        const btn = document.createElement("button");
+        btn.innerText = i;
+
+        if(takenSlot){
+          btn.className = "bg-red-600 p-2 rounded font-bold";
+
+          if(isAdmin){
+            btn.onclick = ()=>deleteRegistration(car,i);
+          }
+
+        }else{
+          btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
+          btn.onclick = ()=>register(car,i);
+        }
+
+        grid.appendChild(btn);
+      }
+
+      box.appendChild(grid);
+      container.appendChild(box);
+
+    });
+
+    document.getElementById("list").innerHTML =
+      registrations.map(r=>`
+        <div class="border-b border-gray-700 py-2">
+          ${r.car} - 位置 ${r.position} - ${r.name}
+        </div>
+      `).join("");
+
+  }catch(e){
+    console.error("系統錯誤:",e);
+  }
 }
 
 loadData();
 </script>
+
+</body>
+</html>
