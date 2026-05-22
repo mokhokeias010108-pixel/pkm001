@@ -169,6 +169,7 @@ async function loadData(){
     const container = document.getElementById("cars");
     container.innerHTML = "";
 
+    // ✅ 建立車顯示
     Object.keys(events).forEach(car => {
 
       const taken = registrations.filter(r => r.car === car);
@@ -210,16 +211,44 @@ async function loadData(){
       container.appendChild(box);
     });
 
-    document.getElementById("list").innerHTML =
-      registrations.map(r=>`
-        <div class="border-b border-gray-700 py-2">
-          ${r.car} - 位置 ${r.position} - ${r.name}
+    // ✅ 分類顯示報名名單
+    const listContainer = document.getElementById("list");
+    listContainer.innerHTML = "";
+
+    Object.keys(events).forEach(car => {
+
+      const carRegs = registrations
+        .filter(r => r.car === car)
+        .sort((a,b)=>a.position - b.position);
+
+      if(carRegs.length === 0) return;
+
+      const carBox = document.createElement("div");
+      carBox.className = "mb-6";
+
+      carBox.innerHTML = `
+        <h3 class="text-yellow-400 font-bold mb-2">${car}</h3>
+      `;
+
+      carRegs.forEach(r => {
+
+        const row = document.createElement("div");
+        row.className = "border-b border-gray-700 py-2";
+
+        row.innerHTML = `
+          位置 ${r.position} - ${r.name}
           ${isAdmin && r.phone ? `
             <div class="text-xs text-green-400 font-bold">
               📞 電話：${r.phone}
-            </div>` : ""}
-        </div>
-      `).join("");
+            </div>
+          ` : ""}
+        `;
+
+        carBox.appendChild(row);
+      });
+
+      listContainer.appendChild(carBox);
+    });
 
   }catch(e){
     console.error("系統錯誤:", e);
