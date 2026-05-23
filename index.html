@@ -15,12 +15,6 @@
 }
 .glow { animation: glow 2s infinite; }
 
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(20px); }
-  to { opacity:1; transform:translateY(0); }
-}
-.fade-up { animation: fadeUp 0.6s ease forwards; }
-
 .car-card { transition: all 0.3s ease; }
 .car-card:hover {
   box-shadow: 0 0 25px rgba(255,215,0,0.5);
@@ -30,14 +24,18 @@
 .slot-btn { transition: all 0.2s ease; }
 .slot-btn:hover { transform: scale(1.1); }
 
-@keyframes pulseGlow {
+.full-car {
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
   0% { box-shadow: 0 0 5px red; }
   50% { box-shadow: 0 0 20px red; }
   100% { box-shadow: 0 0 5px red; }
 }
-.full-car { animation: pulseGlow 1.5s infinite; }
 
-.admin-mode { box-shadow: 0 0 40px gold inset; }
+.admin-mode {
+  box-shadow: 0 0 40px gold inset;
+}
 </style>
 </head>
 
@@ -65,7 +63,7 @@
 </div>
 
 <div id="paymentPage" style="display:none;">
-  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 fade-up">
+  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
     <div id="paymentInfo" class="mb-4"></div>
 
@@ -75,12 +73,12 @@
     <p>戶口姓名：PkmFire Limited</p>
 
     <button onclick="sendWhatsApp()" 
-      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full slot-btn">
+      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full">
       ✅ 付款完成 → WhatsApp 通知
     </button>
 
     <button onclick="goHome()" 
-      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full slot-btn">
+      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full">
       返回主頁
     </button>
   </div>
@@ -99,7 +97,7 @@ const supabaseClient = supabase.createClient(
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* 🔥 所有車資料（完全不變） */
+/* ✅ 所有車資料 */
 const events = {
   Car1:{slots:7,price:2140,description:`🎮 開一盒黃金禮盒混洗
 🏆 黃金比卡超 x1
@@ -145,19 +143,25 @@ function adminLogin(){
     document.body.classList.add("admin-mode");
     alert("✅ 已進入管理模式");
     loadData();
-  }else if(pw){
+  } else if(pw){
     alert("❌ 密碼錯誤");
   }
 }
 
-/* ✅ 管理員刪除功能 */
+/* ✅ 修正版刪除功能 */
 async function deleteRegistration(id){
-  if(!confirm("確定要刪除這個位置？")) return;
+  if(!confirm("確定刪除？")) return;
 
-  await supabaseClient
+  const {error} = await supabaseClient
     .from("registrations")
     .delete()
-    .eq("id",id);
+    .eq("id", id);
+
+  if(error){
+    alert("❌ 刪除失敗: " + error.message);
+  }else{
+    alert("✅ 已刪除");
+  }
 
   loadData();
 }
@@ -180,15 +184,9 @@ async function register(car,pos){
     return;
   }
 
-  const {error}=await supabaseClient
+  await supabaseClient
     .from("registrations")
     .insert([{name,phone,car,position:pos}]);
-
-  if(error){
-    alert("❌ 報名失敗！");
-    loadData();
-    return;
-  }
 
   currentRegistration={car,pos,name,phone};
 
@@ -236,14 +234,12 @@ async function loadData(){
         const item=document.createElement("div");
         item.className="bg-gray-700 p-2 rounded mb-1 flex justify-between items-center";
 
-        item.innerHTML=`
-          <span>位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}</span>
-        `;
+        item.innerHTML=`<span>位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}</span>`;
 
         if(isAdmin){
           const delBtn=document.createElement("button");
           delBtn.innerText="❌";
-          delBtn.className="text-red-400 font-bold ml-3";
+          delBtn.className="text-red-400 font-bold";
           delBtn.onclick=()=>deleteRegistration(r.id);
           item.appendChild(delBtn);
         }
@@ -260,7 +256,7 @@ async function loadData(){
     const remaining=events[car].slots-taken.length;
 
     const box=document.createElement("div");
-    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card fade-up";
+    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card";
 
     box.innerHTML=`
       <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
@@ -284,9 +280,9 @@ ${events[car].description}
       btn.innerText=i;
 
       if(takenSlot){
-        btn.className="bg-red-600 p-2 rounded font-bold slot-btn";
+        btn.className="bg-red-600 p-2 rounded font-bold";
       }else{
-        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black slot-btn";
+        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
         btn.onclick=()=>register(car,i);
       }
 
