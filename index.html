@@ -27,9 +27,24 @@
 
 <div id="cars"></div>
 
+<!-- ✅ 付款方法 -->
+<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
+<p>轉數快識別碼：128392362</p>
+<p>銀行：滙豐銀行</p>
+<p>戶口姓名：PkmFire Limited</p>
+</div>
+
+<!-- ✅ 報名名單 -->
+<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
+<div id="list"></div>
+</div>
+
 </div>
 
 <script>
+
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
@@ -37,52 +52,26 @@ const supabaseClient = supabase.createClient(
 
 const events = {
 
-  Car1: {
-    slots: 7,
-    description: `
-🎮 開一盒黃金禮盒混洗
-🔥 7人成團
-🔥 每個位置 $2140
-`
-  },
-
-  Car2: {
-    slots: 10,
-    description: `
-✨ PSA10人車 ✨
-🔥 十人成團
-🔥 每個位置 $690
-`
-  },
-
-  Car3: {
-    slots: 6,
-    description: `
-🎮 超級M2A混能車
-🔥 6人成團
-🔥 每個位置 $700
-`
-  },
-
-  Car4: {
-    slots: 6,
-    description: `
-🛞 M5混洗車
-🔥 6人成團
-🔥 每個位置 $280
-`
-  },
-
-  Car5: {
-    slots: 6,
-    description: `
-🛞 M5混洗車
-🔥 6人成團
-🔥 每個位置 $280
-`
-  }
+  Car1:{ slots:7, price:2140, description:"開一盒黃金禮盒混洗" },
+  Car2:{ slots:10, price:690, description:"PSA10人車" },
+  Car3:{ slots:6, price:700, description:"超級M2A混能車" },
+  Car4:{ slots:6, price:280, description:"M5混洗車" },
+  Car5:{ slots:6, price:280, description:"M5混洗車" }
 
 };
+
+async function register(car, position){
+
+  const name = prompt("姓名");
+  const phone = prompt("電話");
+  if(!name || !phone) return;
+
+  await supabaseClient.from("registrations").insert([
+    { name, phone, car, position }
+  ]);
+
+  loadData();
+}
 
 async function loadData(){
 
@@ -94,26 +83,77 @@ async function loadData(){
   const container = document.getElementById("cars");
   container.innerHTML = "";
 
-  Object.keys(events).forEach(car => {
+  Object.keys(events).forEach(car=>{
 
-    const taken = registrations.filter(r => r.car === car);
+    const taken = registrations.filter(r=>r.car===car);
     const remaining = events[car].slots - taken.length;
 
     const box = document.createElement("div");
-    box.className = "mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500";
+    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500";
 
-    box.innerHTML = `
-      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-      <pre class="whitespace-pre-wrap text-gray-300 text-sm mb-3">${events[car].description}</pre>
-      <p class="text-green-400 font-bold">剩餘名額：${remaining}</p>
+    box.innerHTML=`
+      <h2 class="text-yellow-400 text-xl font-bold mb-2">${car}</h2>
+      <p class="mb-2">${events[car].description}</p>
+      <p>🔥 每個位置 $${events[car].price}</p>
+      <p class="text-green-400 font-bold mt-2">剩餘名額：${remaining}</p>
     `;
 
+    const grid=document.createElement("div");
+    grid.className="grid grid-cols-5 gap-2 mt-3";
+
+    for(let i=1;i<=events[car].slots;i++){
+
+      const takenSlot=registrations.find(r=>r.car===car && r.position==i);
+      const btn=document.createElement("button");
+
+      btn.innerText=i;
+
+      if(takenSlot){
+        btn.className="bg-red-600 p-2 rounded";
+      }else{
+        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
+        btn.onclick=()=>register(car,i);
+      }
+
+      grid.appendChild(btn);
+    }
+
+    box.appendChild(grid);
     container.appendChild(box);
+
+  });
+
+  // ✅ 分類名單
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  Object.keys(events).forEach(car=>{
+
+    const carRegs=registrations
+      .filter(r=>r.car===car)
+      .sort((a,b)=>a.position-b.position);
+
+    if(carRegs.length===0) return;
+
+    const section=document.createElement("div");
+    section.className="mb-4";
+
+    section.innerHTML=`<h3 class="text-yellow-400 font-bold">${car}</h3>`;
+
+    carRegs.forEach(r=>{
+      const row=document.createElement("div");
+      row.innerText=`位置 ${r.position} - ${r.name}`;
+      section.appendChild(row);
+    });
+
+    list.appendChild(section);
+
   });
 
 }
 
 loadData();
+
 </script>
 
 </body>
