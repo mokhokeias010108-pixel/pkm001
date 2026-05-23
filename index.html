@@ -6,7 +6,7 @@
 <title>PkmFire車隊</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 @keyframes glow {
@@ -25,30 +25,17 @@
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<div class="text-right mb-4">
-<button onclick="adminLogin()" class="text-sm text-yellow-400 underline">
-管理員登入
-</button>
-</div>
-
 <div id="cars"></div>
 
-<!-- 付款方法 -->
+<!-- ✅ 付款方法 -->
 <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
-<p>轉數快識別碼：<span class="text-green-400 font-bold">128392362</span></p>
+<p>轉數快識別碼：128392362</p>
 <p>銀行：滙豐銀行</p>
 <p>戶口姓名：PkmFire Limited</p>
 </div>
 
-<!-- 直播時間 -->
-<div class="mt-6 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-3">📹 直播時間</h2>
-<p>5月22號 晚上8點</p>
-<p>IG：PkmFire</p>
-</div>
-
-<!-- 已報名名單 -->
+<!-- ✅ 已報名名單 -->
 <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
 <div id="list"></div>
@@ -57,8 +44,6 @@
 </div>
 
 <script>
-const ADMIN_PASSWORD = "pkmadmin888";
-let isAdmin = false;
 
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
@@ -66,75 +51,97 @@ const supabaseClient = supabase.createClient(
 );
 
 const events = {
+
   Car1: {
     slots: 7,
+    price: 2140,
     description: `
-🎮 開一盒黃金禮盒混洗
-黃金比卡超 x1
-金球加配件 x1
-5包25周年白色卡包代拆
-(有機會生日比卡超 / 噴火龍)
-🔥 7人成團 | 每位 $2140
+🎮 玩法：
+開一盒黃金禮盒混洗
+
+🏆 大獎：黃金比卡超 x1
+🥈 二獎：金球加配件 x1
+🎁 參與獎：5包25周年白色卡包代拆（每人一包）
+
+✨ 有機會開出生日比卡超 / 噴火龍
+❗ 黃金禮盒開出用燈照唔到
+
+🔥 7人成團
+🔥 每個位置 $2140
 `
   },
+
   Car2: {
     slots: 10,
+    price: 690,
     description: `
-✨ PSA10人車 ✨
-每人一包M2A鬥AR編號
-🏆 AR最大者獲得
-Sv11B黑龍Sar Psa10
-🔥 每位 $350
+✨✨ PSA10人車 ✨✨
+
+🔥 十人成團
+🔥 用一盒 M2A 原膜組車
+🔥 每人一包 M2A 卡包鬥 AR 編號
+🔥 每個位置 $690
+
+🏆 AR 編號最大者獲得：
+✨ 滑浪比卡超 Promo PSA10 ✨
 `
   },
+
   Car3: {
     slots: 6,
+    price: 700,
     description: `
-🎮 超級M2A跑能車
-12張AR + 5張MA + 1張SR/SAR/MUR
-未達標繼續開
-🔥 每位 $700（保底8包）
+🎮 超級M2A混能車
+
+玩法：
+六人合共開出
+✅ 12張不同 AR
+✅ 5張 MA
+✅ 1張 SR / SAR / MUR
+（道具不計）
+
+達標先停車
+未達標繼續開到夠數為止
+
+🔥 6人成團
+🔥 每個位置 $700
+（保底每人 8 包）
+`
+  },
+
+  Car4: {
+    slots: 6,
+    price: 280,
+    description: `
+🛞 M5混洗車
+
+🔥 6人成團
+🔥 用兩盒 M5 組車
+🔥 每人 10 包
+🔥 每個位置 $280
+`
+  },
+
+  Car5: {
+    slots: 6,
+    price: 280,
+    description: `
+🛞 M5混洗車
+
+🔥 6人成團
+🔥 用兩盒 M5 組車
+🔥 每人 10 包
+🔥 每個位置 $280
 `
   }
+
 };
 
-function adminLogin(){
-  const pw = prompt("輸入管理員密碼");
-  if(pw === ADMIN_PASSWORD){
-    isAdmin = true;
-    alert("✅ 已進入管理模式");
-    setTimeout(loadData, 100);
-  }
-}
-
-async function deleteRegistration(car, position){
-  if(!isAdmin) return;
-  if(!confirm(`刪除 ${car} 位置 ${position}?`)) return;
-
-  await supabaseClient
-    .from("registrations")
-    .delete()
-    .eq("car", car)
-    .eq("position", position);
-
-  loadData();
-}
-
 async function register(car, position){
-  const name = prompt("姓名");
-  const phone = prompt("電話");
+
+  const name = prompt("請輸入姓名");
+  const phone = prompt("請輸入電話");
   if(!name || !phone) return;
-
-  const { data: existing } = await supabaseClient
-    .from("registrations")
-    .select("*")
-    .eq("car", car)
-    .eq("position", position);
-
-  if(existing.length > 0){
-    alert("此位置已被選擇！");
-    return;
-  }
 
   await supabaseClient.from("registrations").insert([
     { name, phone, car, position }
@@ -145,75 +152,84 @@ async function register(car, position){
 
 async function loadData(){
 
-  try{
-    const { data } = await supabaseClient
-      .from("registrations")
-      .select("*");
+  const { data } = await supabaseClient
+    .from("registrations")
+    .select("*");
 
-    const registrations = data || [];
-    const container = document.getElementById("cars");
-    container.innerHTML = "";
+  const registrations = data || [];
+  const container = document.getElementById("cars");
+  container.innerHTML = "";
 
-    Object.keys(events).forEach(car => {
+  Object.keys(events).forEach(car=>{
 
-      const taken = registrations.filter(r => r.car === car);
-      const remaining = events[car].slots - taken.length;
+    const taken = registrations.filter(r=>r.car===car);
+    const remaining = events[car].slots - taken.length;
 
-      const box = document.createElement("div");
-      box.className = "mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500";
+    const box = document.createElement("div");
+    box.className="mb-10 bg-gray-900 p-5 rounded-xl border border-yellow-500";
 
-      box.innerHTML = `
-        <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-        <pre class="whitespace-pre-wrap text-gray-300 text-sm mb-3">${events[car].description}</pre>
-        <p class="text-green-400 font-bold mb-3">👇🏻 剩餘名額：${remaining}</p>
-      `;
+    box.innerHTML=`
+      <h2 class="text-yellow-400 text-xl font-bold mb-3">${car}</h2>
+      <pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
+      <p class="text-green-400 font-bold">剩餘名額：${remaining}</p>
+    `;
 
-      const grid = document.createElement("div");
-      grid.className = "grid grid-cols-5 gap-2";
+    const grid=document.createElement("div");
+    grid.className="grid grid-cols-5 gap-2 mt-4";
 
-      for(let i=1;i<=events[car].slots;i++){
+    for(let i=1;i<=events[car].slots;i++){
 
-        const takenSlot = registrations.find(r=>r.car===car && r.position==i);
+      const takenSlot=registrations.find(r=>r.car===car && r.position==i);
+      const btn=document.createElement("button");
 
-        const btn = document.createElement("button");
-        btn.innerText = i;
+      btn.innerText=i;
 
-        if(takenSlot){
-          btn.className = "bg-red-600 p-2 rounded font-bold";
-
-          if(isAdmin){
-            btn.onclick = ()=>deleteRegistration(car,i);
-          }
-
-        }else{
-          btn.className = "bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-          btn.onclick = ()=>register(car,i);
-        }
-
-        grid.appendChild(btn);
+      if(takenSlot){
+        btn.className="bg-red-600 p-2 rounded font-bold";
+      }else{
+        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
+        btn.onclick=()=>register(car,i);
       }
 
-      box.appendChild(grid);
-      container.appendChild(box);
+      grid.appendChild(btn);
+    }
+
+    box.appendChild(grid);
+    container.appendChild(box);
+
+  });
+
+  // ✅ 分類名單
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  Object.keys(events).forEach(car=>{
+
+    const carRegs=registrations
+      .filter(r=>r.car===car)
+      .sort((a,b)=>a.position-b.position);
+
+    if(carRegs.length===0) return;
+
+    const section=document.createElement("div");
+    section.className="mb-4";
+
+    section.innerHTML=`<h3 class="text-yellow-400 font-bold">${car}</h3>`;
+
+    carRegs.forEach(r=>{
+      const row=document.createElement("div");
+      row.innerText=`位置 ${r.position} - ${r.name}`;
+      section.appendChild(row);
     });
 
-    document.getElementById("list").innerHTML =
-      registrations.map(r=>`
-        <div class="border-b border-gray-700 py-2">
-          ${r.car} - 位置 ${r.position} - ${r.name}
-          ${isAdmin && r.phone ? `
-            <div class="text-xs text-green-400 font-bold">
-              📞 電話：${r.phone}
-            </div>` : ""}
-        </div>
-      `).join("");
+    list.appendChild(section);
 
-  }catch(e){
-    console.error("系統錯誤:", e);
-  }
+  });
+
 }
 
 loadData();
+
 </script>
 
 </body>
