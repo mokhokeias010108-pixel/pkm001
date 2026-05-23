@@ -26,7 +26,7 @@
 </h1>
 
 <div class="text-right mb-4">
-<button onclick="adminLogin()" class="text-yellow-400 underline text-sm">
+<button onclick="showAdminModal()" class="text-yellow-400 underline text-sm">
 管理員登入
 </button>
 </div>
@@ -35,14 +35,14 @@
 <div id="mainPage">
   <div id="cars"></div>
 
-  <!-- 已報名名單 -->
+  <!-- ✅ 已報名名單 -->
   <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
     <div id="list"></div>
   </div>
 </div>
 
-<!-- 付款頁 -->
+<!-- ✅ 付款頁 -->
 <div id="paymentPage" style="display:none;">
   <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
@@ -65,9 +65,33 @@
   </div>
 </div>
 
-<!-- 收入總結 -->
-<div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500" style="display:none;"></div>
+<!-- ✅ 收入總結 -->
+<div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500 hidden"></div>
 
+</div>
+
+<!-- ✅ 管理員登入視窗 -->
+<div id="adminModal" 
+  class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden">
+
+  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 w-80">
+    <h2 class="text-yellow-400 font-bold mb-4 text-center">管理員登入</h2>
+
+    <input id="adminPasswordInput"
+      type="password"
+      placeholder="輸入密碼"
+      class="w-full p-2 rounded text-black mb-4" />
+
+    <button onclick="adminLogin()" 
+      class="bg-yellow-500 text-black w-full py-2 rounded font-bold">
+      登入
+    </button>
+
+    <button onclick="closeAdminModal()" 
+      class="mt-3 text-sm text-gray-400 w-full">
+      取消
+    </button>
+  </div>
 </div>
 
 <script>
@@ -83,125 +107,95 @@ const supabaseClient = supabase.createClient(
 
 const events = {
 
-  Car1:{
-    slots:7,
-    price:2140,
-    description:`
-🎮 開一盒黃金禮盒混洗
+  Car1:{ slots:7, price:2140,
+    description:`🎮 開一盒黃金禮盒混洗
 🏆 黃金比卡超 x1
 🥈 金球加配件 x1
 🎁 5包25周年白色卡包
 🔥 7人成團
-🔥 每個位置 $2140
-`
-  },
+🔥 每個位置 $2140`},
 
-  Car2:{
-    slots:10,
-    price:690,
-    description:`
-✨ PSA10人車 ✨
+  Car2:{ slots:10, price:690,
+    description:`✨ PSA10人車 ✨
 🔥 十人成團
 🔥 每人一包M2A鬥AR編號
 🏆 AR最大者獲得滑浪比卡超 PSA10
-🔥 每個位置 $690
-`
-  },
+🔥 每個位置 $690`},
 
-  Car3:{
-    slots:6,
-    price:700,
-    description:`
-🎮 超級M2A混能車
-✅ 12張AR
-✅ 5張MA
-✅ 1張SR/SAR/MUR
+  Car3:{ slots:6, price:700,
+    description:`🎮 超級M2A混能車
+✅ 12張AR ✅ 5張MA ✅ 1張SR/SAR/MUR
 🔥 6人成團
-🔥 每個位置 $700
-`
-  },
+🔥 每個位置 $700`},
 
-  Car4:{
-    slots:6,
-    price:280,
-    description:`
-🛞 M5混洗車
+  Car4:{ slots:6, price:280,
+    description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $280
-`
-  },
+🔥 每個位置 $280`},
 
-  Car5:{
-    slots:6,
-    price:280,
-    description:`
-🛞 M5混洗車
+  Car5:{ slots:6, price:280,
+    description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $280
-`
-  }
-
+🔥 每個位置 $280`}
 };
 
+function showAdminModal(){
+  document.getElementById("adminModal").classList.remove("hidden");
+}
+
+function closeAdminModal(){
+  document.getElementById("adminModal").classList.add("hidden");
+}
+
 function adminLogin(){
-  const pw = prompt("請輸入管理員密碼");
+  const pw=document.getElementById("adminPasswordInput").value;
   if(pw===ADMIN_PASSWORD){
     isAdmin=true;
     alert("✅ 已進入管理模式");
+    closeAdminModal();
     loadData();
+  }else{
+    alert("❌ 密碼錯誤");
   }
 }
 
-async function register(car,position){
-
+async function register(car,pos){
   const name=prompt("請輸入姓名");
   const phone=prompt("請輸入電話");
   if(!name||!phone) return;
 
-  await supabaseClient.from("registrations").insert([
-    {name,phone,car,position}
-  ]);
+  await supabaseClient.from("registrations").insert([{name,phone,car,position:pos}]);
 
-  currentRegistration={car,position,name,phone};
+  currentRegistration={car,pos,name,phone};
 
   document.getElementById("mainPage").style.display="none";
   document.getElementById("paymentPage").style.display="block";
 
-  document.getElementById("paymentInfo").innerHTML=`
-    車輛：${car}<br>
-    位置：${position}<br>
-    金額：$${events[car].price}
-  `;
+  document.getElementById("paymentInfo").innerHTML=
+    `車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
 }
 
-async function deleteRegistration(car,position){
+async function deleteRegistration(car,pos){
   if(!isAdmin) return;
   if(!confirm("確定刪除？")) return;
 
-  await supabaseClient
-    .from("registrations")
+  await supabaseClient.from("registrations")
     .delete()
     .eq("car",car)
-    .eq("position",position);
+    .eq("position",pos);
 
   loadData();
 }
 
 function sendWhatsApp(){
-  const message=encodeURIComponent(
-    "✅ 已完成付款\n\n"+
-    "姓名："+currentRegistration.name+"\n"+
-    "電話："+currentRegistration.phone+"\n"+
-    "車輛："+currentRegistration.car+"\n"+
-    "位置："+currentRegistration.position+"\n"+
-    "金額：$"+events[currentRegistration.car].price
+  const msg=encodeURIComponent(
+    `✅ 已完成付款\n\n姓名:${currentRegistration.name}\n電話:${currentRegistration.phone}\n車輛:${currentRegistration.car}\n位置:${currentRegistration.pos}\n金額:$${events[currentRegistration.car].price}`
   );
-
-  window.open(`https://wa.me/85264866544?text=${message}`,"_blank");
+  window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
 }
 
 function goHome(){
@@ -217,7 +211,6 @@ async function loadData(){
 
   const container=document.getElementById("cars");
   container.innerHTML="";
-
   let totalRevenue=0;
 
   Object.keys(events).forEach(car=>{
@@ -228,11 +221,11 @@ async function loadData(){
     totalRevenue+=revenue;
 
     const box=document.createElement("div");
-    box.className="mb-10 bg-gray-900 p-5 rounded-xl border border-yellow-500";
+    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500";
 
     box.innerHTML=`
-      <h2 class="text-yellow-400 text-xl font-bold mb-3">${car}</h2>
-      <pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
+      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
+      <pre class="whitespace-pre-wrap text-gray-300 mb-2">${events[car].description}</pre>
       <p class="text-green-400 font-bold">
         ${remaining===0?"✅ 已滿團":"剩餘名額："+remaining}
       </p>
@@ -240,24 +233,20 @@ async function loadData(){
     `;
 
     const grid=document.createElement("div");
-    grid.className="grid grid-cols-5 gap-2 mt-4";
+    grid.className="grid grid-cols-5 gap-2 mt-3";
 
     for(let i=1;i<=events[car].slots;i++){
-
       const takenSlot=registrations.find(r=>r.car===car&&r.position==i);
       const btn=document.createElement("button");
       btn.innerText=i;
 
       if(takenSlot){
         btn.className="bg-red-600 p-2 rounded font-bold";
-        if(isAdmin){
-          btn.onclick=()=>deleteRegistration(car,i);
-        }
+        if(isAdmin) btn.onclick=()=>deleteRegistration(car,i);
       }else{
         btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
         btn.onclick=()=>register(car,i);
       }
-
       grid.appendChild(btn);
     }
 
@@ -265,17 +254,43 @@ async function loadData(){
     container.appendChild(box);
   });
 
+  // ✅ 收入總結
   const summary=document.getElementById("summary");
   if(isAdmin){
-    summary.style.display="block";
-    summary.innerHTML=`
-      <h2 class="text-yellow-400 font-bold mb-2">📊 收入總結</h2>
-      <p class="text-green-400 font-bold text-lg">全場總收入：$${totalRevenue}</p>
-    `;
+    summary.classList.remove("hidden");
+    summary.innerHTML=`<h2 class="text-yellow-400 font-bold mb-2">📊 收入總結</h2>
+    <p class="text-green-400 font-bold text-lg">全場總收入：$${totalRevenue}</p>`;
   }else{
-    summary.style.display="none";
+    summary.classList.add("hidden");
   }
 
+  // ✅ 已報名名單
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  Object.keys(events).forEach(car=>{
+    const carRegs=registrations
+      .filter(r=>r.car===car)
+      .sort((a,b)=>a.position-b.position);
+
+    if(carRegs.length===0) return;
+
+    const section=document.createElement("div");
+    section.className="mb-4";
+    section.innerHTML=`<h3 class="text-yellow-400 font-bold">${car}</h3>`;
+
+    carRegs.forEach(r=>{
+      const row=document.createElement("div");
+      row.className="border-b border-gray-700 py-1";
+      row.innerHTML=`
+        位置 ${r.position} - ${r.name}
+        ${isAdmin?`<div class="text-xs text-green-400">📞 ${r.phone}</div>`:""}
+      `;
+      section.appendChild(row);
+    });
+
+    list.appendChild(section);
+  });
 }
 
 loadData();
