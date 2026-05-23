@@ -9,11 +9,53 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
+/* 標題發光 */
 @keyframes glow {
   0%,100% { text-shadow: 0 0 10px gold; }
   50% { text-shadow: 0 0 25px orange; }
 }
 .glow { animation: glow 2s infinite; }
+
+/* 卡片滑入 */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.fade-up { animation: fadeUp 0.6s ease forwards; }
+
+/* 車卡 hover */
+.car-card {
+  transition: all 0.3s ease;
+}
+.car-card:hover {
+  box-shadow: 0 0 25px rgba(255,215,0,0.5);
+  transform: translateY(-5px);
+}
+
+/* 格仔 hover */
+.slot-btn {
+  transition: all 0.2s ease;
+}
+.slot-btn:hover {
+  transform: scale(1.1);
+}
+
+/* 已滿團呼吸 */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 5px red; }
+  50% { box-shadow: 0 0 20px red; }
+  100% { box-shadow: 0 0 5px red; }
+}
+.full-car {
+  animation: pulseGlow 1.5s infinite;
+}
+
+/* 管理員模式發光 */
+.admin-mode {
+  box-shadow: 0 0 40px gold inset;
+}
+
 </style>
 </head>
 
@@ -35,16 +77,15 @@
 <div id="mainPage">
   <div id="cars"></div>
 
-  <!-- ✅ 已報名名單 -->
   <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
     <div id="list"></div>
   </div>
 </div>
 
-<!-- ✅ 付款頁 -->
+<!-- 付款頁 -->
 <div id="paymentPage" style="display:none;">
-  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500">
+  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 fade-up">
     <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
     <div id="paymentInfo" class="mb-4"></div>
 
@@ -54,27 +95,26 @@
     <p>戶口姓名：PkmFire Limited</p>
 
     <button onclick="sendWhatsApp()" 
-      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full">
+      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full slot-btn">
       ✅ 付款完成 → WhatsApp 通知
     </button>
 
     <button onclick="goHome()" 
-      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full">
+      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full slot-btn">
       返回主頁
     </button>
   </div>
 </div>
 
-<!-- ✅ 收入總結 -->
 <div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500 hidden"></div>
 
 </div>
 
-<!-- ✅ 管理員登入視窗 -->
+<!-- 管理員登入 -->
 <div id="adminModal" 
   class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden">
 
-  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 w-80">
+  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 w-80 fade-up">
     <h2 class="text-yellow-400 font-bold mb-4 text-center">管理員登入</h2>
 
     <input id="adminPasswordInput"
@@ -83,7 +123,7 @@
       class="w-full p-2 rounded text-black mb-4" />
 
     <button onclick="adminLogin()" 
-      class="bg-yellow-500 text-black w-full py-2 rounded font-bold">
+      class="bg-yellow-500 text-black w-full py-2 rounded font-bold slot-btn">
       登入
     </button>
 
@@ -123,6 +163,7 @@ function adminLogin(){
   const pw=document.getElementById("adminPasswordInput").value;
   if(pw===ADMIN_PASSWORD){
     isAdmin=true;
+    document.body.classList.add("admin-mode");
     alert("✅ 已進入管理模式");
     closeAdminModal();
     loadData();
@@ -162,7 +203,7 @@ async function deleteRegistration(car,pos){
 
 function sendWhatsApp(){
   const msg=encodeURIComponent(
-    `✅ 已完成付款\n\n姓名:${currentRegistration.name}\n電話:${currentRegistration.phone}\n車輛:${currentRegistration.car}\n位置:${currentRegistration.pos}\n金額:$${events[currentRegistration.car].price}`
+    `✅ 已完成付款\n姓名:${currentRegistration.name}\n電話:${currentRegistration.phone}\n車輛:${currentRegistration.car}\n位置:${currentRegistration.pos}\n金額:$${events[currentRegistration.car].price}`
   );
   window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
 }
@@ -175,15 +216,7 @@ function goHome(){
 
 async function loadData(){
 
-  const {data,error}=await supabaseClient
-    .from("registrations")
-    .select("*");
-
-  if(error){
-    console.error(error);
-    return;
-  }
-
+  const {data}=await supabaseClient.from("registrations").select("*");
   const registrations=data||[];
   const container=document.getElementById("cars");
   container.innerHTML="";
@@ -197,13 +230,16 @@ async function loadData(){
     totalRevenue+=revenue;
 
     const box=document.createElement("div");
-    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500";
+    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card fade-up";
 
     box.innerHTML=`
       <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
       <p>🔥 每個位置 $${events[car].price}</p>
       <p class="text-green-400 font-bold">
-        ${remaining===0?"✅ 已滿團":"剩餘名額："+remaining}
+        ${remaining===0?
+          `<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`
+          :
+          "剩餘名額："+remaining}
       </p>
       ${isAdmin?`<p class="text-yellow-300">💰 已收：$${revenue}</p>`:""}
     `;
@@ -217,10 +253,10 @@ async function loadData(){
       btn.innerText=i;
 
       if(takenSlot){
-        btn.className="bg-red-600 p-2 rounded font-bold";
+        btn.className="bg-red-600 p-2 rounded font-bold slot-btn";
         if(isAdmin) btn.onclick=()=>deleteRegistration(car,i);
       }else{
-        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
+        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black slot-btn";
         btn.onclick=()=>register(car,i);
       }
 
@@ -231,7 +267,6 @@ async function loadData(){
     container.appendChild(box);
   });
 
-  // ✅ 收入總結
   const summary=document.getElementById("summary");
   if(isAdmin){
     summary.classList.remove("hidden");
@@ -241,7 +276,6 @@ async function loadData(){
     summary.classList.add("hidden");
   }
 
-  // ✅ 已報名名單（強制顯示電話）
   const list=document.getElementById("list");
   list.innerHTML="";
 
@@ -254,16 +288,15 @@ async function loadData(){
 
     const section=document.createElement("div");
     section.className="mb-4";
+
     section.innerHTML=`<h3 class="text-yellow-400 font-bold">${car}</h3>`;
 
     carRegs.forEach(r=>{
       const row=document.createElement("div");
-      row.className="border-b border-gray-700 py-2";
+      row.className="border-b border-gray-700 py-1";
       row.innerHTML=`
         位置 ${r.position} - ${r.name}
-        ${isAdmin ? `<div class="text-xs text-green-400 font-bold">
-        📞 ${r.phone ? r.phone : "（無電話資料）"}
-        </div>` : ""}
+        ${isAdmin?`<div class="text-xs text-green-400">📞 ${r.phone}</div>`:""}
       `;
       section.appendChild(row);
     });
