@@ -21,33 +21,23 @@
 }
 .fade-up { animation: fadeUp 0.6s ease forwards; }
 
-.car-card {
-  transition: all 0.3s ease;
-}
+.car-card { transition: all 0.3s ease; }
 .car-card:hover {
   box-shadow: 0 0 25px rgba(255,215,0,0.5);
   transform: translateY(-5px);
 }
 
-.slot-btn {
-  transition: all 0.2s ease;
-}
-.slot-btn:hover {
-  transform: scale(1.1);
-}
+.slot-btn { transition: all 0.2s ease; }
+.slot-btn:hover { transform: scale(1.1); }
 
 @keyframes pulseGlow {
   0% { box-shadow: 0 0 5px red; }
   50% { box-shadow: 0 0 20px red; }
   100% { box-shadow: 0 0 5px red; }
 }
-.full-car {
-  animation: pulseGlow 1.5s infinite;
-}
+.full-car { animation: pulseGlow 1.5s infinite; }
 
-.admin-mode {
-  box-shadow: 0 0 40px gold inset;
-}
+.admin-mode { box-shadow: 0 0 40px gold inset; }
 </style>
 </head>
 
@@ -169,6 +159,16 @@ const events = {
 🔥 用兩盒M5
 🔥 每人10包
 🔥 每個位置 $250`
+  },
+
+  Car7:{
+    slots:6,
+    price:140,
+    description:`🛞 M5混洗車
+🔥 6人成團
+🔥 用一盒M5開車
+🔥 每人五包
+🔥 每個位置 $140`
   }
 
 };
@@ -245,7 +245,6 @@ async function loadData(){
   container.innerHTML="";
   list.innerHTML="";
 
-  /* 分類名單 */
   Object.keys(events).forEach(car=>{
     const carRegs=registrations
       .filter(r=>r.car===car)
@@ -267,7 +266,6 @@ async function loadData(){
     }
   });
 
-  /* 車卡 */
   Object.keys(events).forEach(car=>{
     const taken=registrations.filter(r=>r.car===car);
     const remaining=events[car].slots-taken.length;
