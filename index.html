@@ -25,37 +25,32 @@
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<div class="text-right mb-4">
-<button onclick="adminLogin()" class="text-yellow-400 underline text-sm">
-管理員登入
-</button>
+<!-- ✅ 主頁 -->
+<div id="mainPage">
+  <div id="cars"></div>
 </div>
 
-<div id="cars"></div>
+<!-- ✅ 付款頁 -->
+<div id="paymentPage" style="display:none;">
+  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500">
+    <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
+    <div id="paymentInfo" class="mb-4"></div>
 
-<!-- ✅ 收入總結（只管理員可見） -->
-<div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500" style="display:none;"></div>
+    <h3 class="text-yellow-400 font-bold mb-2">💰 請完成付款</h3>
+    <p>轉數快識別碼：128392362</p>
+    <p>銀行：滙豐銀行</p>
+    <p>戶口姓名：PkmFire Limited</p>
 
-<!-- ✅ 付款方法 -->
-<div class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
-<p>轉數快識別碼：128392362</p>
-<p>銀行：滙豐銀行</p>
-<p>戶口姓名：PkmFire Limited</p>
-</div>
-
-<!-- ✅ 已報名名單 -->
-<div class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
-<div id="list"></div>
+    <button onclick="goHome()" 
+      class="mt-6 bg-yellow-500 text-black px-4 py-2 rounded font-bold">
+      返回主頁
+    </button>
+  </div>
 </div>
 
 </div>
 
 <script>
-
-const ADMIN_PASSWORD = "pkmadmin888";
-let isAdmin = false;
 
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
@@ -70,16 +65,8 @@ const events = {
   Car5:{ slots:6, price:280 }
 };
 
-function adminLogin(){
-  const pw = prompt("請輸入管理員密碼");
-  if(pw === ADMIN_PASSWORD){
-    isAdmin = true;
-    alert("✅ 已進入管理模式");
-    loadData();
-  }
-}
-
 async function register(car, position){
+
   const name = prompt("請輸入姓名");
   const phone = prompt("請輸入電話");
   if(!name || !phone) return;
@@ -88,19 +75,21 @@ async function register(car, position){
     { name, phone, car, position }
   ]);
 
-  loadData();
+  // ✅ 跳去付款頁
+  document.getElementById("mainPage").style.display="none";
+  document.getElementById("paymentPage").style.display="block";
+
+  document.getElementById("paymentInfo").innerHTML=`
+    <p>車輛：<span class="text-green-400">${car}</span></p>
+    <p>位置：<span class="text-green-400">${position}</span></p>
+    <p>金額：<span class="text-green-400">$${events[car].price}</span></p>
+  `;
+
 }
 
-async function deleteRegistration(car, position){
-  if(!isAdmin) return;
-  if(!confirm("確定刪除此位置？")) return;
-
-  await supabaseClient
-    .from("registrations")
-    .delete()
-    .eq("car", car)
-    .eq("position", position);
-
+function goHome(){
+  document.getElementById("paymentPage").style.display="none";
+  document.getElementById("mainPage").style.display="block";
   loadData();
 }
 
@@ -114,14 +103,10 @@ async function loadData(){
   const container = document.getElementById("cars");
   container.innerHTML = "";
 
-  let totalRevenue = 0;
-
   Object.keys(events).forEach(car=>{
 
     const taken = registrations.filter(r=>r.car===car);
     const remaining = events[car].slots - taken.length;
-    const revenue = taken.length * events[car].price;
-    totalRevenue += revenue;
 
     const box = document.createElement("div");
     box.className="mb-10 bg-gray-900 p-5 rounded-xl border border-yellow-500";
@@ -132,7 +117,6 @@ async function loadData(){
       <p class="text-green-400 font-bold mt-2">
         ${remaining===0 ? "✅ 已滿團" : "剩餘名額："+remaining}
       </p>
-      ${isAdmin ? `<p class="text-yellow-300 mt-1">💰 已收：$${revenue}</p>` : ""}
     `;
 
     const grid=document.createElement("div");
@@ -146,9 +130,6 @@ async function loadData(){
 
       if(takenSlot){
         btn.className="bg-red-600 p-2 rounded font-bold";
-        if(isAdmin){
-          btn.onclick=()=>deleteRegistration(car,i);
-        }
       }else{
         btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
         btn.onclick=()=>register(car,i);
@@ -159,49 +140,6 @@ async function loadData(){
 
     box.appendChild(grid);
     container.appendChild(box);
-  });
-
-  // ✅ 收入總結（只限管理員）
-  const summaryBox = document.getElementById("summary");
-
-  if(isAdmin){
-    summaryBox.style.display = "block";
-    summaryBox.innerHTML = `
-      <h2 class="text-yellow-400 font-bold mb-2">📊 收入總結</h2>
-      <p class="text-green-400 font-bold text-lg">全場總收入：$${totalRevenue}</p>
-    `;
-  }else{
-    summaryBox.style.display = "none";
-  }
-
-  // ✅ 分類名單
-  const list=document.getElementById("list");
-  list.innerHTML="";
-
-  Object.keys(events).forEach(car=>{
-
-    const carRegs=registrations
-      .filter(r=>r.car===car)
-      .sort((a,b)=>a.position-b.position);
-
-    if(carRegs.length===0) return;
-
-    const section=document.createElement("div");
-    section.className="mb-4";
-
-    section.innerHTML=`<h3 class="text-yellow-400 font-bold">${car}</h3>`;
-
-    carRegs.forEach(r=>{
-      const row=document.createElement("div");
-      row.className="border-b border-gray-700 py-1";
-      row.innerHTML=`
-        位置 ${r.position} - ${r.name}
-        ${isAdmin ? `<div class="text-xs text-green-400">📞 ${r.phone}</div>` : ""}
-      `;
-      section.appendChild(row);
-    });
-
-    list.appendChild(section);
   });
 
 }
