@@ -35,7 +35,7 @@
 <div id="mainPage">
   <div id="cars"></div>
 
-  <!-- ✅ 已報名名單 -->
+  <!-- 已報名名單 -->
   <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
     <div id="list"></div>
@@ -65,7 +65,7 @@
   </div>
 </div>
 
-<!-- ✅ 收入總結 -->
+<!-- 收入總結 -->
 <div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500" style="display:none;"></div>
 
 </div>
@@ -82,11 +82,69 @@ const supabaseClient = supabase.createClient(
 );
 
 const events = {
-  Car1:{ slots:7, price:2140 },
-  Car2:{ slots:10, price:690 },
-  Car3:{ slots:6, price:700 },
-  Car4:{ slots:6, price:280 },
-  Car5:{ slots:6, price:280 }
+
+  Car1:{
+    slots:7,
+    price:2140,
+    description:`
+🎮 開一盒黃金禮盒混洗
+🏆 黃金比卡超 x1
+🥈 金球加配件 x1
+🎁 5包25周年白色卡包
+🔥 7人成團
+🔥 每個位置 $2140
+`
+  },
+
+  Car2:{
+    slots:10,
+    price:690,
+    description:`
+✨ PSA10人車 ✨
+🔥 十人成團
+🔥 每人一包M2A鬥AR編號
+🏆 AR最大者獲得滑浪比卡超 PSA10
+🔥 每個位置 $690
+`
+  },
+
+  Car3:{
+    slots:6,
+    price:700,
+    description:`
+🎮 超級M2A混能車
+✅ 12張AR
+✅ 5張MA
+✅ 1張SR/SAR/MUR
+🔥 6人成團
+🔥 每個位置 $700
+`
+  },
+
+  Car4:{
+    slots:6,
+    price:280,
+    description:`
+🛞 M5混洗車
+🔥 6人成團
+🔥 用兩盒M5
+🔥 每人10包
+🔥 每個位置 $280
+`
+  },
+
+  Car5:{
+    slots:6,
+    price:280,
+    description:`
+🛞 M5混洗車
+🔥 6人成團
+🔥 用兩盒M5
+🔥 每人10包
+🔥 每個位置 $280
+`
+  }
+
 };
 
 function adminLogin(){
@@ -140,8 +198,7 @@ function sendWhatsApp(){
     "電話："+currentRegistration.phone+"\n"+
     "車輛："+currentRegistration.car+"\n"+
     "位置："+currentRegistration.position+"\n"+
-    "金額：$"+events[currentRegistration.car].price+
-    "\n\n已截圖付款記錄"
+    "金額：$"+events[currentRegistration.car].price
   );
 
   window.open(`https://wa.me/85264866544?text=${message}`,"_blank");
@@ -175,7 +232,7 @@ async function loadData(){
 
     box.innerHTML=`
       <h2 class="text-yellow-400 text-xl font-bold mb-3">${car}</h2>
-      <p>🔥 每個位置 $${events[car].price}</p>
+      <pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
       <p class="text-green-400 font-bold">
         ${remaining===0?"✅ 已滿團":"剩餘名額："+remaining}
       </p>
@@ -208,7 +265,6 @@ async function loadData(){
     container.appendChild(box);
   });
 
-  // ✅ 收入總結
   const summary=document.getElementById("summary");
   if(isAdmin){
     summary.style.display="block";
@@ -220,40 +276,10 @@ async function loadData(){
     summary.style.display="none";
   }
 
-  // ✅ 已報名名單
-  const list=document.getElementById("list");
-  list.innerHTML="";
-
-  Object.keys(events).forEach(car=>{
-    const carRegs=registrations
-      .filter(r=>r.car===car)
-      .sort((a,b)=>a.position-b.position);
-
-    if(carRegs.length===0) return;
-
-    const section=document.createElement("div");
-    section.className="mb-4";
-
-    section.innerHTML=`<h3 class="text-yellow-400 font-bold">${car}</h3>`;
-
-    carRegs.forEach(r=>{
-      const row=document.createElement("div");
-      row.className="border-b border-gray-700 py-1";
-      row.innerHTML=`
-        位置 ${r.position} - ${r.name}
-        ${isAdmin?`<div class="text-xs text-green-400">📞 ${r.phone}</div>`:""}
-      `;
-      section.appendChild(row);
-    });
-
-    list.appendChild(section);
-  });
-
 }
 
 loadData();
 
 </script>
-
 </body>
 </html>
