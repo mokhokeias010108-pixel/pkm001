@@ -47,14 +47,19 @@
     <p>銀行：滙豐銀行</p>
     <p>戶口姓名：PkmFire Limited</p>
 
+    <button onclick="sendWhatsApp()" 
+      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full">
+      ✅ 付款完成 → WhatsApp 通知
+    </button>
+
     <button onclick="goHome()" 
-      class="mt-6 bg-yellow-500 text-black px-4 py-2 rounded font-bold">
+      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full">
       返回主頁
     </button>
   </div>
 </div>
 
-<!-- 收入總結（只管理員） -->
+<!-- 收入總結（只管理員可見） -->
 <div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500" style="display:none;"></div>
 
 </div>
@@ -63,6 +68,8 @@
 
 const ADMIN_PASSWORD = "pkmadmin888";
 let isAdmin = false;
+
+let currentRegistration = {};
 
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
@@ -154,6 +161,8 @@ async function register(car,position){
     {name,phone,car,position}
   ]);
 
+  currentRegistration = { car, position, name, phone };
+
   document.getElementById("mainPage").style.display="none";
   document.getElementById("paymentPage").style.display="block";
 
@@ -162,6 +171,21 @@ async function register(car,position){
     <p>位置：${position}</p>
     <p>金額：$${events[car].price}</p>
   `;
+}
+
+function sendWhatsApp(){
+
+  const message = encodeURIComponent(
+    "✅ 已完成付款\n\n" +
+    "姓名：" + currentRegistration.name + "\n" +
+    "電話：" + currentRegistration.phone + "\n" +
+    "車輛：" + currentRegistration.car + "\n" +
+    "位置：" + currentRegistration.position + "\n" +
+    "金額：$" + events[currentRegistration.car].price +
+    "\n\n已截圖付款記錄，請確認 🙏"
+  );
+
+  window.open(`https://wa.me/85264866544?text=${message}`, "_blank");
 }
 
 function goHome(){
