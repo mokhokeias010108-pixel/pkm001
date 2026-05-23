@@ -99,78 +99,43 @@ const supabaseClient = supabase.createClient(
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
+/* 🔥 所有車資料（完全不變） */
 const events = {
-
-  Car1:{
-    slots:7,
-    price:2140,
-    description:`🎮 開一盒黃金禮盒混洗
+  Car1:{slots:7,price:2140,description:`🎮 開一盒黃金禮盒混洗
 🏆 黃金比卡超 x1
 🥈 金球加配件 x1
 🎁 5包25周年白色卡包
 🔥 7人成團
-🔥 每個位置 $2140`
-  },
-
-  Car2:{
-    slots:10,
-    price:690,
-    description:`✨ PSA10人車 ✨
+🔥 每個位置 $2140`},
+  Car2:{slots:10,price:690,description:`✨ PSA10人車 ✨
 🔥 十人成團
 🔥 每人一包M2A鬥AR編號
 🏆 AR最大者獲得滑浪比卡超 PSA10
-🔥 每個位置 $690`
-  },
-
-  Car3:{
-    slots:6,
-    price:700,
-    description:`🎮 超級M2A混能車
+🔥 每個位置 $690`},
+  Car3:{slots:6,price:700,description:`🎮 超級M2A混能車
 ✅ 12張AR ✅ 5張MA ✅ 1張SR/SAR/MUR
 🔥 6人成團
-🔥 每個位置 $700`
-  },
-
-  Car4:{
-    slots:6,
-    price:250,
-    description:`🛞 M5混洗車
+🔥 每個位置 $700`},
+  Car4:{slots:6,price:250,description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $250`
-  },
-
-  Car5:{
-    slots:6,
-    price:250,
-    description:`🛞 M5混洗車
+🔥 每個位置 $250`},
+  Car5:{slots:6,price:250,description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $250`
-  },
-
-  Car6:{
-    slots:6,
-    price:250,
-    description:`🛞 M5混洗車
+🔥 每個位置 $250`},
+  Car6:{slots:6,price:250,description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $250`
-  },
-
-  Car7:{
-    slots:6,
-    price:140,
-    description:`🛞 M5混洗車
+🔥 每個位置 $250`},
+  Car7:{slots:6,price:140,description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用一盒M5開車
 🔥 每人五包
-🔥 每個位置 $140`
-  }
-
+🔥 每個位置 $140`}
 };
 
 function adminLogin(){
@@ -180,9 +145,21 @@ function adminLogin(){
     document.body.classList.add("admin-mode");
     alert("✅ 已進入管理模式");
     loadData();
-  } else if(pw){
+  }else if(pw){
     alert("❌ 密碼錯誤");
   }
+}
+
+/* ✅ 管理員刪除功能 */
+async function deleteRegistration(id){
+  if(!confirm("確定要刪除這個位置？")) return;
+
+  await supabaseClient
+    .from("registrations")
+    .delete()
+    .eq("id",id);
+
+  loadData();
 }
 
 async function register(car,pos){
@@ -208,7 +185,7 @@ async function register(car,pos){
     .insert([{name,phone,car,position:pos}]);
 
   if(error){
-    alert("❌ 報名失敗，可能位置已被搶走！");
+    alert("❌ 報名失敗！");
     loadData();
     return;
   }
@@ -257,8 +234,20 @@ async function loadData(){
       carRegs.forEach(r=>{
         const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
         const item=document.createElement("div");
-        item.className="bg-gray-700 p-2 rounded mb-1";
-        item.innerHTML=`位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}`;
+        item.className="bg-gray-700 p-2 rounded mb-1 flex justify-between items-center";
+
+        item.innerHTML=`
+          <span>位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}</span>
+        `;
+
+        if(isAdmin){
+          const delBtn=document.createElement("button");
+          delBtn.innerText="❌";
+          delBtn.className="text-red-400 font-bold ml-3";
+          delBtn.onclick=()=>deleteRegistration(r.id);
+          item.appendChild(delBtn);
+        }
+
         block.appendChild(item);
       });
 
