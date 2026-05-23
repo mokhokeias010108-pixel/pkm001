@@ -10,21 +10,18 @@
 
 <style>
 
-/* 標題發光 */
 @keyframes glow {
   0%,100% { text-shadow: 0 0 10px gold; }
   50% { text-shadow: 0 0 25px orange; }
 }
 .glow { animation: glow 2s infinite; }
 
-/* 卡片滑入 */
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(20px); }
   to { opacity:1; transform:translateY(0); }
 }
 .fade-up { animation: fadeUp 0.6s ease forwards; }
 
-/* 卡片 hover */
 .car-card {
   transition: all 0.3s ease;
 }
@@ -33,7 +30,6 @@
   transform: translateY(-5px);
 }
 
-/* 格仔 hover */
 .slot-btn {
   transition: all 0.2s ease;
 }
@@ -41,7 +37,6 @@
   transform: scale(1.1);
 }
 
-/* 滿團呼吸 */
 @keyframes pulseGlow {
   0% { box-shadow: 0 0 5px red; }
   50% { box-shadow: 0 0 20px red; }
@@ -51,7 +46,6 @@
   animation: pulseGlow 1.5s infinite;
 }
 
-/* 管理員模式 */
 .admin-mode {
   box-shadow: 0 0 40px gold inset;
 }
@@ -73,17 +67,15 @@
 </button>
 </div>
 
-<!-- 主頁 -->
 <div id="mainPage">
   <div id="cars"></div>
 
   <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
-    <div id="list"></div>
+    <div id="list" class="space-y-2 text-sm"></div>
   </div>
 </div>
 
-<!-- 付款頁 -->
 <div id="paymentPage" style="display:none;">
   <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 fade-up">
     <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
@@ -106,32 +98,6 @@
   </div>
 </div>
 
-<div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500 hidden"></div>
-
-</div>
-
-<!-- 管理員登入 -->
-<div id="adminModal" 
-  class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden">
-
-  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500 w-80 fade-up">
-    <h2 class="text-yellow-400 font-bold mb-4 text-center">管理員登入</h2>
-
-    <input id="adminPasswordInput"
-      type="password"
-      placeholder="輸入密碼"
-      class="w-full p-2 rounded text-black mb-4" />
-
-    <button onclick="adminLogin()" 
-      class="bg-yellow-500 text-black w-full py-2 rounded font-bold slot-btn">
-      登入
-    </button>
-
-    <button onclick="closeAdminModal()" 
-      class="mt-3 text-sm text-gray-400 w-full">
-      取消
-    </button>
-  </div>
 </div>
 
 <script>
@@ -200,20 +166,13 @@ const events = {
 };
 
 function showAdminModal(){
-  document.getElementById("adminModal").classList.remove("hidden");
-}
-function closeAdminModal(){
-  document.getElementById("adminModal").classList.add("hidden");
-}
-function adminLogin(){
-  const pw=document.getElementById("adminPasswordInput").value;
+  const pw=prompt("請輸入管理員密碼");
   if(pw===ADMIN_PASSWORD){
     isAdmin=true;
     document.body.classList.add("admin-mode");
     alert("✅ 已進入管理模式");
-    closeAdminModal();
     loadData();
-  }else{
+  }else if(pw){
     alert("❌ 密碼錯誤");
   }
 }
@@ -235,18 +194,6 @@ async function register(car,pos){
     `車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
 }
 
-async function deleteRegistration(car,pos){
-  if(!isAdmin) return;
-  if(!confirm("確定刪除？")) return;
-
-  await supabaseClient.from("registrations")
-    .delete()
-    .eq("car",car)
-    .eq("position",pos);
-
-  loadData();
-}
-
 function sendWhatsApp(){
   const msg=encodeURIComponent(
     `✅ 已完成付款\n姓名:${currentRegistration.name}\n電話:${currentRegistration.phone}\n車輛:${currentRegistration.car}\n位置:${currentRegistration.pos}\n金額:$${events[currentRegistration.car].price}`
@@ -264,16 +211,24 @@ async function loadData(){
 
   const {data}=await supabaseClient.from("registrations").select("*");
   const registrations=data||[];
+
   const container=document.getElementById("cars");
+  const list=document.getElementById("list");
   container.innerHTML="";
-  let totalRevenue=0;
+  list.innerHTML="";
+
+  registrations.forEach(r=>{
+    const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
+    const div=document.createElement("div");
+    div.className="bg-gray-700 p-2 rounded";
+    div.innerHTML=`${r.car} - 位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}`;
+    list.appendChild(div);
+  });
 
   Object.keys(events).forEach(car=>{
 
     const taken=registrations.filter(r=>r.car===car);
     const remaining=events[car].slots-taken.length;
-    const revenue=taken.length*events[car].price;
-    totalRevenue+=revenue;
 
     const box=document.createElement("div");
     box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card fade-up";
@@ -291,8 +246,6 @@ ${events[car].description}
           :
           "剩餘名額："+remaining}
       </p>
-
-      ${isAdmin?`<p class="text-yellow-300">💰 已收：$${revenue}</p>`:""}
     `;
 
     const grid=document.createElement("div");
@@ -305,7 +258,6 @@ ${events[car].description}
 
       if(takenSlot){
         btn.className="bg-red-600 p-2 rounded font-bold slot-btn";
-        if(isAdmin) btn.onclick=()=>deleteRegistration(car,i);
       }else{
         btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black slot-btn";
         btn.onclick=()=>register(car,i);
