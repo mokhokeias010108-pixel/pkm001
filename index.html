@@ -62,7 +62,7 @@
 </h1>
 
 <div class="text-right mb-4">
-<button onclick="showAdminModal()" class="text-yellow-400 underline text-sm">
+<button onclick="showAdminLogin()" class="text-yellow-400 underline text-sm">
 管理員登入
 </button>
 </div>
@@ -71,8 +71,8 @@
   <div id="cars"></div>
 
   <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-    <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
-    <div id="list" class="space-y-2 text-sm"></div>
+    <h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
+    <div id="list" class="space-y-6 text-sm"></div>
   </div>
 </div>
 
@@ -113,66 +113,46 @@ const supabaseClient = supabase.createClient(
 
 const events = {
 
-  Car1:{
-    slots:7,
-    price:2140,
-    description:`🎮 開一盒黃金禮盒混洗
+  Car1:{ slots:7, price:2140, description:`🎮 開一盒黃金禮盒混洗
 🏆 黃金比卡超 x1
 🥈 金球加配件 x1
 🎁 5包25周年白色卡包
 🔥 7人成團
-🔥 每個位置 $2140`
-  },
+🔥 每個位置 $2140` },
 
-  Car2:{
-    slots:10,
-    price:690,
-    description:`✨ PSA10人車 ✨
+  Car2:{ slots:10, price:690, description:`✨ PSA10人車 ✨
 🔥 十人成團
 🔥 每人一包M2A鬥AR編號
 🏆 AR最大者獲得滑浪比卡超 PSA10
-🔥 每個位置 $690`
-  },
+🔥 每個位置 $690` },
 
-  Car3:{
-    slots:6,
-    price:700,
-    description:`🎮 超級M2A混能車
+  Car3:{ slots:6, price:700, description:`🎮 超級M2A混能車
 ✅ 12張AR ✅ 5張MA ✅ 1張SR/SAR/MUR
 🔥 6人成團
-🔥 每個位置 $700`
-  },
+🔥 每個位置 $700` },
 
-  Car4:{
-    slots:6,
-    price:250,
-    description:`🛞 M5混洗車
+  Car4:{ slots:6, price:250, description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $250`
-  },
+🔥 每個位置 $250` },
 
-  Car5:{
-    slots:6,
-    price:250,
-    description:`🛞 M5混洗車
+  Car5:{ slots:6, price:250, description:`🛞 M5混洗車
 🔥 6人成團
 🔥 用兩盒M5
 🔥 每人10包
-🔥 每個位置 $250`
-  }
+🔥 每個位置 $250` }
 
 };
 
-function showAdminModal(){
-  const pw=prompt("請輸入管理員密碼");
-  if(pw===ADMIN_PASSWORD){
-    isAdmin=true;
+function showAdminLogin(){
+  const pw = prompt("請輸入管理員密碼");
+  if(pw === ADMIN_PASSWORD){
+    isAdmin = true;
     document.body.classList.add("admin-mode");
     alert("✅ 已進入管理模式");
     loadData();
-  }else if(pw){
+  } else if(pw){
     alert("❌ 密碼錯誤");
   }
 }
@@ -217,13 +197,33 @@ async function loadData(){
   container.innerHTML="";
   list.innerHTML="";
 
-  registrations.forEach(r=>{
-    const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
-    const div=document.createElement("div");
-    div.className="bg-gray-700 p-2 rounded";
-    div.innerHTML=`${r.car} - 位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}`;
-    list.appendChild(div);
+  /* ===== 已報名名單分類顯示 ===== */
+
+  Object.keys(events).forEach(car=>{
+
+    const carRegs = registrations
+      .filter(r=>r.car===car)
+      .sort((a,b)=>a.position-b.position);
+
+    if(carRegs.length>0){
+
+      const carBlock=document.createElement("div");
+      carBlock.innerHTML=`<h3 class="text-yellow-300 font-bold mb-2">${car}</h3>`;
+      
+      carRegs.forEach(r=>{
+        const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
+        const item=document.createElement("div");
+        item.className="bg-gray-700 p-2 rounded mb-1";
+        item.innerHTML=`位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}`;
+        carBlock.appendChild(item);
+      });
+
+      list.appendChild(carBlock);
+    }
+
   });
+
+  /* ===== 車位顯示 ===== */
 
   Object.keys(events).forEach(car=>{
 
