@@ -21,14 +21,23 @@
 
 <div class="p-4 max-w-4xl mx-auto">
 
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6 glow">
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-4 glow">
 ✨✨PkmFire車隊✨✨
 </h1>
 
+<div class="text-right mb-4">
+<button onclick="adminLogin()" class="text-yellow-400 underline text-sm">
+管理員登入
+</button>
+</div>
+
 <div id="cars"></div>
 
+<!-- ✅ 收入總結 -->
+<div id="summary" class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500"></div>
+
 <!-- ✅ 付款方法 -->
-<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<div class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">💰 付款方法</h2>
 <p>轉數快識別碼：128392362</p>
 <p>銀行：滙豐銀行</p>
@@ -36,7 +45,7 @@
 </div>
 
 <!-- ✅ 已報名名單 -->
-<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<div class="mt-8 bg-gray-800 p-5 rounded-xl border border-yellow-500">
 <h2 class="text-yellow-400 font-bold mb-3">📋 已報名名單</h2>
 <div id="list"></div>
 </div>
@@ -45,100 +54,32 @@
 
 <script>
 
+const ADMIN_PASSWORD = "pkmadmin888";
+let isAdmin = false;
+
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
 const events = {
-
-  Car1: {
-    slots: 7,
-    price: 2140,
-    description: `
-🎮 玩法：
-開一盒黃金禮盒混洗
-
-🏆 大獎：黃金比卡超 x1
-🥈 二獎：金球加配件 x1
-🎁 參與獎：5包25周年白色卡包代拆（每人一包）
-
-✨ 有機會開出生日比卡超 / 噴火龍
-❗ 黃金禮盒開出用燈照唔到
-
-🔥 7人成團
-🔥 每個位置 $2140
-`
-  },
-
-  Car2: {
-    slots: 10,
-    price: 690,
-    description: `
-✨✨ PSA10人車 ✨✨
-
-🔥 十人成團
-🔥 用一盒 M2A 原膜組車
-🔥 每人一包 M2A 卡包鬥 AR 編號
-🔥 每個位置 $690
-
-🏆 AR 編號最大者獲得：
-✨ 滑浪比卡超 Promo PSA10 ✨
-`
-  },
-
-  Car3: {
-    slots: 6,
-    price: 700,
-    description: `
-🎮 超級M2A混能車
-
-玩法：
-六人合共開出
-✅ 12張不同 AR
-✅ 5張 MA
-✅ 1張 SR / SAR / MUR
-（道具不計）
-
-達標先停車
-未達標繼續開到夠數為止
-
-🔥 6人成團
-🔥 每個位置 $700
-（保底每人 8 包）
-`
-  },
-
-  Car4: {
-    slots: 6,
-    price: 280,
-    description: `
-🛞 M5混洗車
-
-🔥 6人成團
-🔥 用兩盒 M5 組車
-🔥 每人 10 包
-🔥 每個位置 $280
-`
-  },
-
-  Car5: {
-    slots: 6,
-    price: 280,
-    description: `
-🛞 M5混洗車
-
-🔥 6人成團
-🔥 用兩盒 M5 組車
-🔥 每人 10 包
-🔥 每個位置 $280
-`
-  }
-
+  Car1:{ slots:7, price:2140 },
+  Car2:{ slots:10, price:690 },
+  Car3:{ slots:6, price:700 },
+  Car4:{ slots:6, price:280 },
+  Car5:{ slots:6, price:280 }
 };
 
-async function register(car, position){
+function adminLogin(){
+  const pw = prompt("請輸入管理員密碼");
+  if(pw === ADMIN_PASSWORD){
+    isAdmin = true;
+    alert("✅ 已進入管理模式");
+    loadData();
+  }
+}
 
+async function register(car, position){
   const name = prompt("請輸入姓名");
   const phone = prompt("請輸入電話");
   if(!name || !phone) return;
@@ -146,6 +87,20 @@ async function register(car, position){
   await supabaseClient.from("registrations").insert([
     { name, phone, car, position }
   ]);
+
+  loadData();
+}
+
+async function deleteRegistration(car, position){
+  if(!isAdmin) return;
+
+  if(!confirm("確定刪除此位置？")) return;
+
+  await supabaseClient
+    .from("registrations")
+    .delete()
+    .eq("car", car)
+    .eq("position", position);
 
   loadData();
 }
@@ -160,18 +115,25 @@ async function loadData(){
   const container = document.getElementById("cars");
   container.innerHTML = "";
 
+  let totalRevenue = 0;
+
   Object.keys(events).forEach(car=>{
 
     const taken = registrations.filter(r=>r.car===car);
     const remaining = events[car].slots - taken.length;
+    const revenue = taken.length * events[car].price;
+    totalRevenue += revenue;
 
     const box = document.createElement("div");
     box.className="mb-10 bg-gray-900 p-5 rounded-xl border border-yellow-500";
 
     box.innerHTML=`
-      <h2 class="text-yellow-400 text-xl font-bold mb-3">${car}</h2>
-      <pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
-      <p class="text-green-400 font-bold">剩餘名額：${remaining}</p>
+      <h2 class="text-yellow-400 text-xl font-bold mb-2">${car}</h2>
+      <p>🔥 每個位置 $${events[car].price}</p>
+      <p class="text-green-400 font-bold mt-2">
+        ${remaining===0 ? "✅ 已滿團" : "剩餘名額："+remaining}
+      </p>
+      <p class="text-yellow-300 mt-1">💰 已收：$${revenue}</p>
     `;
 
     const grid=document.createElement("div");
@@ -181,11 +143,13 @@ async function loadData(){
 
       const takenSlot=registrations.find(r=>r.car===car && r.position==i);
       const btn=document.createElement("button");
-
       btn.innerText=i;
 
       if(takenSlot){
         btn.className="bg-red-600 p-2 rounded font-bold";
+        if(isAdmin){
+          btn.onclick=()=>deleteRegistration(car,i);
+        }
       }else{
         btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
         btn.onclick=()=>register(car,i);
@@ -196,8 +160,13 @@ async function loadData(){
 
     box.appendChild(grid);
     container.appendChild(box);
-
   });
+
+  // ✅ 收入總結
+  document.getElementById("summary").innerHTML=`
+    <h2 class="text-yellow-400 font-bold mb-2">📊 收入總結</h2>
+    <p class="text-green-400 font-bold text-lg">全場總收入：$${totalRevenue}</p>
+  `;
 
   // ✅ 分類名單
   const list=document.getElementById("list");
@@ -218,12 +187,15 @@ async function loadData(){
 
     carRegs.forEach(r=>{
       const row=document.createElement("div");
-      row.innerText=`位置 ${r.position} - ${r.name}`;
+      row.className="border-b border-gray-700 py-1";
+      row.innerHTML=`
+        位置 ${r.position} - ${r.name}
+        ${isAdmin ? `<div class="text-xs text-green-400">📞 ${r.phone}</div>` : ""}
+      `;
       section.appendChild(row);
     });
 
     list.appendChild(section);
-
   });
 
 }
