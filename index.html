@@ -21,9 +21,6 @@
   transform: translateY(-5px);
 }
 
-.slot-btn { transition: all 0.2s ease; }
-.slot-btn:hover { transform: scale(1.1); }
-
 .full-car {
   animation: pulse 1.5s infinite;
 }
@@ -50,7 +47,7 @@
 <div class="text-center text-sm text-yellow-300 mb-6">
 ✨另外為回報大家支持✨<br>
 今日起每車上車可參加 PSA 抽獎活動<br>
-🎁 今期獎品：Sv8a 火伊貝 PSA10<br>
+🎁 今期獎品：M2X 噴火龍 SR PSA10<br>
 （每一車抽一個名額，滿10人抽選）
 </div>
 
@@ -104,16 +101,17 @@ const supabaseClient = supabase.createClient(
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* ✅ 更新車資料 */
+/* ✅ 更新後車資料 */
 const events = {
 
   Car1:{
     slots:7,
     price:2140,
-    description:`🎮 開一盒黃金禮盒混洗
-🏆 黃金比卡超 x1
-🥈 金球加配件 x1
-🎁 5包25周年白色卡包
+    description:`🎮-玩法
+開一盒黃金禮盒混洗
+🏆 大獎 黃金比卡超 x1
+🥈 二獎 金球加配件 x1
+🎁 5份參與獎 25周年白色卡包
 🔥 7人成團
 🔥 每個位置 $2140`
   },
@@ -134,15 +132,28 @@ const events = {
   Car3:{
     slots:6,
     price:700,
-    description:`🎮 超級M2A混能車
-✅ 12張AR ✅ 5張MA ✅ 1張SR/SAR/MUR
+    description:`🎮-玩法
+六人合開：
+12張不同AR + 5張MA + 1張SAR/MUR（道具不計）
+未夠數繼續開直到達標
 🔥 6人成團
-🔥 每個位置 $700`
+🔥 每個位置 $700（保底每人8包）`
+  },
+
+  Car4:{
+    slots:6,
+    price:700,
+    description:`🎮-玩法
+六人合開：
+12張不同AR + 5張MA + 1張SAR/MUR（道具不計）
+未夠數繼續開直到達標
+🔥 6人成團
+🔥 每個位置 $700（保底每人8包）`
   }
 
 };
 
-/* 其餘 JS 完全不變 */
+/* 下面功能完全不變 */
 
 function adminLogin(){
   const pw=prompt("請輸入管理員密碼");
