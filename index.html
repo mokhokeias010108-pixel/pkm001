@@ -95,16 +95,13 @@ let currentRegistration={};
 
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
-  "👉 請放入你的 key"
+  "你的key"
 );
 
 const events = {
-Car1:{slots:7,price:2140,description:`🔥 7人成團
-🔥 每個位置 $2140`},
-Car2:{slots:10,price:530,description:`🔥 十人成團
-🔥 每個位置 $530`},
-Car3:{slots:6,price:668,description:`🔥 6人成團
-🔥 每個位置 $668`},
+Car1:{slots:7,price:2140,description:`🔥 7人成團 🔥 每個位置 $2140`},
+Car2:{slots:10,price:530,description:`🔥 十人成團 🔥 每個位置 $530`},
+Car3:{slots:6,price:668,description:`🔥 6人成團 🔥 每個位置 $668`},
 Car4:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
 Car5:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
 Car6:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
@@ -164,19 +161,18 @@ const { data, error } = await supabaseClient
 .select("*");
 
 if(error){
-alert("讀取資料失敗");
-console.error(error);
+console.log(error);
 return;
 }
 
 let registrations=data||[];
 
-/* ✅ 排序：車輛 → 位置 */
-registrations.sort((a,b)=>{
-const carA=parseInt(a.car.replace("Car",""));
-const carB=parseInt(b.car.replace("Car",""));
+/* ✅ 排序：Car1→Car2→Car3，同車按位置 */
+registrations.sort(function(a,b){
+let carA=Number((a.car||"").replace("Car",""))||0;
+let carB=Number((b.car||"").replace("Car",""))||0;
 if(carA!==carB) return carA-carB;
-return a.position-b.position;
+return (a.position||0)-(b.position||0);
 });
 
 const container=document.getElementById("cars");
