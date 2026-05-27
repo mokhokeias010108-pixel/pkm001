@@ -8,222 +8,100 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-@keyframes glow {
-  0%,100% { text-shadow: 0 0 10px gold; }
-  50% { text-shadow: 0 0 25px orange; }
-}
-.glow { animation: glow 2s infinite; }
-
-.car-card { transition: all 0.3s ease; }
-.car-card:hover {
-  box-shadow: 0 0 25px rgba(255,215,0,0.5);
-  transform: translateY(-5px);
-}
-
-.full-car { animation: pulse 1.5s infinite; }
-@keyframes pulse {
-  0% { box-shadow: 0 0 5px red; }
-  50% { box-shadow: 0 0 20px red; }
-  100% { box-shadow: 0 0 5px red; }
-}
-
-.admin-mode { box-shadow: 0 0 40px gold inset; }
-</style>
 </head>
 
-<body class="text-white min-h-screen bg-gray-950">
+<body class="bg-gray-950 text-white min-h-screen">
 
-<div class="p-4 max-w-4xl mx-auto">
+<div class="max-w-4xl mx-auto p-4">
 
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-4 glow">
-✨✨PkmFire車隊✨✨
+<h1 class="text-3xl text-yellow-400 font-bold text-center mb-6">
+✨✨ PkmFire車隊 ✨✨
 </h1>
 
-<div class="text-center text-red-400 font-bold mb-2">
-🔥 直播時間：5月27日 晚上10:30
-</div>
+<div id="cars" class="space-y-6"></div>
 
-<div class="text-center text-yellow-300 mb-6">
-📹 直播平台：IG_pkmfire_
-</div>
-
-<div class="text-right mb-4">
-<button onclick="adminLogin()" class="text-yellow-400 underline text-sm">
-管理員登入
-</button>
-</div>
-
-<div id="mainPage">
-  <div id="cars"></div>
-
-  <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-    <h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
-    <div id="list" class="space-y-6 text-sm"></div>
-  </div>
-</div>
-
-<div id="paymentPage" style="display:none;">
-  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500">
-    <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
-    <div id="paymentInfo" class="mb-4"></div>
-
-    <h3 class="text-yellow-400 font-bold mb-2">💰 請完成付款</h3>
-    <p>轉數快識別碼：128392362</p>
-    <p>銀行：滙豐銀行</p>
-    <p>戶口姓名：PkmFire Limited</p>
-
-    <button onclick="sendWhatsApp()" 
-      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full">
-      ✅ 付款完成 → WhatsApp 通知
-    </button>
-
-    <button onclick="goHome()" 
-      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full">
-      返回主頁
-    </button>
-  </div>
+<div class="mt-10 bg-gray-900 p-6 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
+<div id="list" class="space-y-3 text-sm"></div>
 </div>
 
 </div>
 
 <script>
 
-const ADMIN_PASSWORD="pkmadmin888";
-let isAdmin=false;
-let currentRegistration={};
-
+// ✅ 確認 project 正確
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
   "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
+// ✅ 車資料
 const events = {
-
-Car1:{slots:7,price:2140,description:`🔥 7人成團
-🔥 每個位置 $2140`},
-
-Car2:{slots:10,price:530,description:`🔥 十人成團
-🔥 每個位置 $530`},
-
-Car3:{slots:6,price:668,description:`🔥 6人成團
-🔥 每個位置 $668`},
-
-Car4:{slots:6,price:270,description:`🔥 每人10包
-🔥 每人$270`},
-
-Car5:{slots:6,price:270,description:`Car5 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`},
-
-Car6:{slots:6,price:270,description:`Car6 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`},
-
-Car7:{slots:6,price:270,description:`Car7 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`},
-
-Car8:{slots:6,price:270,description:`Car8 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`}
-
+Car1:{slots:6,price:270},
+Car2:{slots:6,price:270},
+Car3:{slots:6,price:270},
+Car4:{slots:6,price:270},
+Car5:{slots:6,price:270},
+Car6:{slots:6,price:270},
+Car7:{slots:6,price:270},
+Car8:{slots:6,price:270}
 };
 
-function adminLogin(){
-const pw=prompt("請輸入管理員密碼");
-if(pw===ADMIN_PASSWORD){
-isAdmin=true;
-document.body.classList.add("admin-mode");
-alert("✅ 已進入管理模式");
-loadData();
-}
-}
-
-async function register(car,pos){
-const name=prompt("請輸入姓名");
-const phone=prompt("請輸入電話");
-if(!name||!phone) return;
-
-await supabaseClient.from("registrations")
-.insert([{name,phone,car,position:pos}]);
-
-currentRegistration={car,pos,name,phone};
-
-document.getElementById("mainPage").style.display="none";
-document.getElementById("paymentPage").style.display="block";
-
-document.getElementById("paymentInfo").innerHTML=
-`車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
-}
-
-function sendWhatsApp(){
-const msg=encodeURIComponent(
-`✅ 已完成付款
-姓名:${currentRegistration.name}
-電話:${currentRegistration.phone}
-車輛:${currentRegistration.car}
-位置:${currentRegistration.pos}
-金額:$${events[currentRegistration.car].price}`
-);
-window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
-}
-
-function goHome(){
-document.getElementById("paymentPage").style.display="none";
-document.getElementById("mainPage").style.display="block";
-loadData();
-}
-
 async function loadData(){
-const {data}=await supabaseClient.from("registrations").select("*");
-const registrations=data||[];
 
-const container=document.getElementById("cars");
-const list=document.getElementById("list");
-container.innerHTML="";
-list.innerHTML="";
+const { data, error } = await supabaseClient
+.from("registrations")
+.select("*")
+.order("id",{ascending:true});
 
+console.log("DATA:",data);
+console.log("ERROR:",error);
+
+if(error){
+alert("❌ 讀取失敗："+error.message);
+return;
+}
+
+const registrations = data || [];
+
+const carContainer = document.getElementById("cars");
+const listContainer = document.getElementById("list");
+
+carContainer.innerHTML="";
+listContainer.innerHTML="";
+
+// ✅ 顯示車輛
 Object.keys(events).forEach(car=>{
-const taken=registrations.filter(r=>r.car===car);
-const remaining=events[car].slots-taken.length;
 
-const box=document.createElement("div");
-box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card";
+const taken = registrations.filter(r=>r.car===car);
+const remaining = events[car].slots - taken.length;
+
+const box = document.createElement("div");
+box.className="bg-gray-900 p-5 rounded-xl border border-yellow-500";
 
 box.innerHTML=`
 <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-<pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
-<p class="text-green-400 font-bold">
-${remaining===0?`<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`:"剩餘名額："+remaining}
-</p>`;
+<p class="text-green-400">
+${remaining<=0 ? "✅ 已滿團" : "剩餘名額："+remaining}
+</p>
+`;
 
-const grid=document.createElement("div");
-grid.className="grid grid-cols-5 gap-2 mt-3";
-
-for(let i=1;i<=events[car].slots;i++){
-const btn=document.createElement("button");
-btn.innerText=i;
-btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-btn.onclick=()=>register(car,i);
-grid.appendChild(btn);
-}
-
-box.appendChild(grid);
-container.appendChild(box);
+carContainer.appendChild(box);
 });
+
+// ✅ 顯示報名名單
+registrations.forEach(r=>{
+const div=document.createElement("div");
+div.className="bg-gray-800 p-3 rounded";
+div.innerHTML=`${r.car} - 位置 ${r.position} - ${r.name} (${r.phone})`;
+listContainer.appendChild(div);
+});
+
 }
 
 loadData();
 
 </script>
+
 </body>
 </html>
