@@ -93,9 +93,10 @@ const ADMIN_PASSWORD="pkmadmin888";
 let isAdmin=false;
 let currentRegistration={};
 
+/* ✅ 改這裡：使用 service_role key */
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
-  "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
+  "👉👉👉 在這裡貼上你的 service_role key 👈👈👈"
 );
 
 const events = {
@@ -107,18 +108,10 @@ Car3:{slots:6,price:668,description:`🔥 6人成團
 🔥 每個位置 $668`},
 Car4:{slots:6,price:270,description:`🔥 每人10包
 🔥 每人$270`},
-Car5:{slots:6,price:270,description:`Car5 齊齊爆開M5 6人車🛞
-🎮-玩法 用兩盒M5原膜組隊
-🔥-每人10包 🔥-每人$270`},
-Car6:{slots:6,price:270,description:`Car6 齊齊爆開M5 6人車🛞
-🎮-玩法 用兩盒M5原膜組隊
-🔥-每人10包 🔥-每人$270`},
-Car7:{slots:6,price:270,description:`Car7 齊齊爆開M5 6人車🛞
-🎮-玩法 用兩盒M5原膜組隊
-🔥-每人10包 🔥-每人$270`},
-Car8:{slots:6,price:270,description:`Car8 齊齊爆開M5 6人車🛞
-🎮-玩法 用兩盒M5原膜組隊
-🔥-每人10包 🔥-每人$270`}
+Car5:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
+Car6:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
+Car7:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
+Car8:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`}
 };
 
 function adminLogin(){
@@ -148,18 +141,6 @@ document.getElementById("paymentInfo").innerHTML=
 `車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
 }
 
-function sendWhatsApp(){
-const msg=encodeURIComponent(
-`✅ 已完成付款
-姓名:${currentRegistration.name}
-電話:${currentRegistration.phone}
-車輛:${currentRegistration.car}
-位置:${currentRegistration.pos}
-金額:$${events[currentRegistration.car].price}`
-);
-window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
-}
-
 function goHome(){
 document.getElementById("paymentPage").style.display="none";
 document.getElementById("mainPage").style.display="block";
@@ -174,16 +155,14 @@ const { data, error } = await supabaseClient
 .order("id",{ascending:true});
 
 if(error){
-alert("❌ 讀取報名資料失敗");
+alert("讀取資料失敗");
 console.error(error);
 return;
 }
 
 const registrations=data||[];
 
-const container=document.getElementById("cars");
 const list=document.getElementById("list");
-container.innerHTML="";
 list.innerHTML="";
 
 if(registrations.length===0){
@@ -201,35 +180,6 @@ div.innerHTML=`
 list.appendChild(div);
 });
 }
-
-Object.keys(events).forEach(car=>{
-const taken=registrations.filter(r=>r.car===car);
-const remaining=events[car].slots-taken.length;
-
-const box=document.createElement("div");
-box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card";
-
-box.innerHTML=`
-<h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-<pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
-<p class="text-green-400 font-bold">
-${remaining===0?`<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`:"剩餘名額："+remaining}
-</p>`;
-
-const grid=document.createElement("div");
-grid.className="grid grid-cols-5 gap-2 mt-3";
-
-for(let i=1;i<=events[car].slots;i++){
-const btn=document.createElement("button");
-btn.innerText=i;
-btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-btn.onclick=()=>register(car,i);
-grid.appendChild(btn);
-}
-
-box.appendChild(grid);
-container.appendChild(box);
-});
 }
 
 loadData();
