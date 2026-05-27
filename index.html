@@ -21,18 +21,14 @@
   transform: translateY(-5px);
 }
 
-.full-car {
-  animation: pulse 1.5s infinite;
-}
+.full-car { animation: pulse 1.5s infinite; }
 @keyframes pulse {
   0% { box-shadow: 0 0 5px red; }
   50% { box-shadow: 0 0 20px red; }
   100% { box-shadow: 0 0 5px red; }
 }
 
-.admin-mode {
-  box-shadow: 0 0 40px gold inset;
-}
+.admin-mode { box-shadow: 0 0 40px gold inset; }
 </style>
 </head>
 
@@ -44,9 +40,16 @@
 ✨✨PkmFire車隊✨✨
 </h1>
 
+<div class="text-center text-red-400 font-bold mb-2">
+🔥 直播時間：5月27日 晚上10:30
+</div>
+<div class="text-center text-yellow-300 mb-6">
+📹 直播平台：IG_pkmfire_
+</div>
+
 <div class="text-center text-sm text-yellow-300 mb-6">
-✨另外為回報大家支持✨<br>
-今日起每車上車可參加 PSA 抽獎活動<br>
+✨車隊福利✨<br>
+每車上車可參加 PSA 抽獎活動<br>
 🎁 今期獎品：M2 噴火龍 SR PSA10<br>
 （每一車抽一個名額，滿10人抽選）
 </div>
@@ -103,194 +106,196 @@ const supabaseClient = supabase.createClient(
 
 const events = {
 
-  Car1:{
-    slots:7,
-    price:2140,
-    description:`🎮-玩法
+Car1:{
+slots:7,
+price:2140,
+description:`🎮-玩法 -3🔥🔥
 開一盒黃金禮盒混洗
 🏆 大獎 黃金比卡超 x1
 🥈 二獎 金球加配件 x1
 🎁 5份參與獎 25周年白色卡包
 🔥 7人成團
 🔥 每個位置 $2140`
-  },
+},
 
-  Car2:{
-    slots:10,
-    price:855,
-    description:`✨✨ PSA10人車 ✨✨
+Car2:{
+slots:10,
+price:530,
+description:`✨✨ 25週年烈空座 PSA10人車 ✨✨
 🔥 十人成團
 🔥 用一盒M2A原膜組車
-🔥 每人一包M2A卡包鬥AR編號
-🔥 每個位置 $855
+🔥 每人一包M2A卡包鬥總血量
+（如最大血量相同補散包再鬥）
+🔥 每個位置 $530
 
-🏆 AR編號最大者獲得
-✨ 25周年生日比卡超 PSA10 ✨`
-  },
+🏆 血量最大者獲得
+✨ 25周年烈空座 PSA10 ✨`
+},
 
-  Car3:{
-    slots:6,
-    price:700,
-    description:`🎮-玩法
+Car3:{
+slots:6,
+price:668,
+description:`🎮-玩法
 六人加埋開出：
 12張不同AR + 5張MA + 1張 SAR/MUR（道具不計）
 未夠數繼續開直到達標
 ❗ 默認走白卡 ❗
 🔥 6人成團
-🔥 每個位置 $700（保底每人8包）`
-  },
+🔥 每個位置 $668（保底每人8包）`
+},
 
-  Car4:{
-    slots:6,
-    price:700,
-    description:`🎮-玩法
-六人加埋開出：
-12張不同AR + 5張MA + 1張 SAR/MUR（道具不計）
-未夠數繼續開直到達標
-❗ 默認走白卡 ❗
-🔥 6人成團
-🔥 每個位置 $700（保底每人8包）`
-  }
+Car4:{
+slots:6,
+price:270,
+description:`🎮-玩法
+用兩盒 M5 原膜組隊
+🔥 每人 10包
+🔥 每人 $270`
+}
 
 };
 
-/* 下面功能完全保持不變 */
+/* 以下功能全部保持不變 */
 
 function adminLogin(){
-  const pw=prompt("請輸入管理員密碼");
-  if(pw===ADMIN_PASSWORD){
-    isAdmin=true;
-    document.body.classList.add("admin-mode");
-    alert("✅ 已進入管理模式");
-    loadData();
-  }
+const pw=prompt("請輸入管理員密碼");
+if(pw===ADMIN_PASSWORD){
+isAdmin=true;
+document.body.classList.add("admin-mode");
+alert("✅ 已進入管理模式");
+loadData();
+}
 }
 
 async function deleteRegistration(id){
-  if(!confirm("確定刪除？")) return;
-  await supabaseClient.from("registrations").delete().eq("id", id);
-  loadData();
+if(!confirm("確定刪除？")) return;
+await supabaseClient.from("registrations").delete().eq("id", id);
+loadData();
 }
 
 async function register(car,pos){
+const name=prompt("請輸入姓名");
+const phone=prompt("請輸入電話");
+if(!name||!phone) return;
 
-  const name=prompt("請輸入姓名");
-  const phone=prompt("請輸入電話");
-  if(!name||!phone) return;
+const {data:check}=await supabaseClient
+.from("registrations")
+.select("*")
+.eq("car",car)
+.eq("position",pos);
 
-  const {data:check}=await supabaseClient
-    .from("registrations")
-    .select("*")
-    .eq("car",car)
-    .eq("position",pos);
+if(check.length>0){
+alert("❌ 此位置已被報名！");
+loadData();
+return;
+}
 
-  if(check.length>0){
-    alert("❌ 此位置已被報名！");
-    loadData();
-    return;
-  }
+await supabaseClient
+.from("registrations")
+.insert([{name,phone,car,position:pos}]);
 
-  await supabaseClient
-    .from("registrations")
-    .insert([{name,phone,car,position:pos}]);
+currentRegistration={car,pos,name,phone};
 
-  currentRegistration={car,pos,name,phone};
+document.getElementById("mainPage").style.display="none";
+document.getElementById("paymentPage").style.display="block";
 
-  document.getElementById("mainPage").style.display="none";
-  document.getElementById("paymentPage").style.display="block";
-
-  document.getElementById("paymentInfo").innerHTML=
-    `車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
+document.getElementById("paymentInfo").innerHTML=
+`車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
 }
 
 function sendWhatsApp(){
-  const msg=encodeURIComponent(
-    `✅ 已完成付款\n姓名:${currentRegistration.name}\n電話:${currentRegistration.phone}\n車輛:${currentRegistration.car}\n位置:${currentRegistration.pos}\n金額:$${events[currentRegistration.car].price}`
-  );
-  window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
+const msg=encodeURIComponent(
+`✅ 已完成付款
+姓名:${currentRegistration.name}
+電話:${currentRegistration.phone}
+車輛:${currentRegistration.car}
+位置:${currentRegistration.pos}
+金額:$${events[currentRegistration.car].price}`
+);
+window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
 }
 
 function goHome(){
-  document.getElementById("paymentPage").style.display="none";
-  document.getElementById("mainPage").style.display="block";
-  loadData();
+document.getElementById("paymentPage").style.display="none";
+document.getElementById("mainPage").style.display="block";
+loadData();
 }
 
 async function loadData(){
 
-  const {data}=await supabaseClient.from("registrations").select("*");
-  const registrations=data||[];
+const {data}=await supabaseClient.from("registrations").select("*");
+const registrations=data||[];
 
-  const container=document.getElementById("cars");
-  const list=document.getElementById("list");
-  container.innerHTML="";
-  list.innerHTML="";
+const container=document.getElementById("cars");
+const list=document.getElementById("list");
+container.innerHTML="";
+list.innerHTML="";
 
-  Object.keys(events).forEach(car=>{
-    const carRegs=registrations
-      .filter(r=>r.car===car)
-      .sort((a,b)=>a.position-b.position);
+Object.keys(events).forEach(car=>{
+const carRegs=registrations
+.filter(r=>r.car===car)
+.sort((a,b)=>a.position-b.position);
 
-    if(carRegs.length>0){
-      const block=document.createElement("div");
-      block.innerHTML=`<h3 class="text-yellow-300 font-bold mb-2">${car}</h3>`;
-      carRegs.forEach(r=>{
-        const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
-        const item=document.createElement("div");
-        item.className="bg-gray-700 p-2 rounded mb-1 flex justify-between items-center";
-        item.innerHTML=`<span>位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}</span>`;
-        if(isAdmin){
-          const delBtn=document.createElement("button");
-          delBtn.innerText="❌";
-          delBtn.className="text-red-400 font-bold";
-          delBtn.onclick=()=>deleteRegistration(r.id);
-          item.appendChild(delBtn);
-        }
-        block.appendChild(item);
-      });
-      list.appendChild(block);
-    }
-  });
+if(carRegs.length>0){
+const block=document.createElement("div");
+block.innerHTML=`<h3 class="text-yellow-300 font-bold mb-2">${car}</h3>`;
+carRegs.forEach(r=>{
+const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
+const item=document.createElement("div");
+item.className="bg-gray-700 p-2 rounded mb-1 flex justify-between items-center";
+item.innerHTML=`<span>位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}</span>`;
+if(isAdmin){
+const delBtn=document.createElement("button");
+delBtn.innerText="❌";
+delBtn.className="text-red-400 font-bold";
+delBtn.onclick=()=>deleteRegistration(r.id);
+item.appendChild(delBtn);
+}
+block.appendChild(item);
+});
+list.appendChild(block);
+}
+});
 
-  Object.keys(events).forEach(car=>{
-    const taken=registrations.filter(r=>r.car===car);
-    const remaining=events[car].slots-taken.length;
+Object.keys(events).forEach(car=>{
+const taken=registrations.filter(r=>r.car===car);
+const remaining=events[car].slots-taken.length;
 
-    const box=document.createElement("div");
-    box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card";
+const box=document.createElement("div");
+box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card";
 
-    box.innerHTML=`
-      <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-      <pre class="whitespace-pre-wrap text-gray-300 mb-3">
+box.innerHTML=`
+<h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
+<pre class="whitespace-pre-wrap text-gray-300 mb-3">
 ${events[car].description}
-      </pre>
-      <p class="text-green-400 font-bold">
-        ${remaining===0?
-          `<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`
-          :
-          "剩餘名額："+remaining}
-      </p>
-    `;
+</pre>
+<p class="text-green-400 font-bold">
+${remaining===0?
+`<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`
+:
+"剩餘名額："+remaining}
+</p>
+`;
 
-    const grid=document.createElement("div");
-    grid.className="grid grid-cols-5 gap-2 mt-3";
+const grid=document.createElement("div");
+grid.className="grid grid-cols-5 gap-2 mt-3";
 
-    for(let i=1;i<=events[car].slots;i++){
-      const takenSlot=registrations.find(r=>r.car===car&&r.position==i);
-      const btn=document.createElement("button");
-      btn.innerText=i;
-      if(takenSlot){
-        btn.className="bg-red-600 p-2 rounded font-bold";
-      }else{
-        btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-        btn.onclick=()=>register(car,i);
-      }
-      grid.appendChild(btn);
-    }
+for(let i=1;i<=events[car].slots;i++){
+const takenSlot=registrations.find(r=>r.car===car&&r.position==i);
+const btn=document.createElement("button");
+btn.innerText=i;
+if(takenSlot){
+btn.className="bg-red-600 p-2 rounded font-bold";
+}else{
+btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
+btn.onclick=()=>register(car,i);
+}
+grid.appendChild(btn);
+}
 
-    box.appendChild(grid);
-    container.appendChild(box);
-  });
+box.appendChild(grid);
+container.appendChild(box);
+});
 
 }
 
