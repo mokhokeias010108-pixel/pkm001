@@ -107,67 +107,49 @@ const supabaseClient = supabase.createClient(
 
 const events = {
 
-Car1:{
-slots:7,
-price:2140,
-description:`🎮-玩法 -3🔥🔥
+Car1:{ slots:7, price:2140, description:`🎮-玩法 -3🔥🔥
 開一盒黃金禮盒混洗
 🏆 大獎 黃金比卡超 x1
 🥈 二獎 金球加配件 x1
 🎁 5份參與獎 25周年白色卡包
 🔥 7人成團
-🔥 每個位置 $2140`
-},
+🔥 每個位置 $2140` },
 
-Car2:{
-slots:10,
-price:530,
-description:`✨✨ 25週年烈空座 PSA10人車 ✨✨
+Car2:{ slots:10, price:530, description:`✨✨ 25週年烈空座 PSA10人車 ✨✨
 🔥 十人成團
 🔥 用一盒M2A原膜組車
 🔥 每人一包M2A卡包鬥總血量
 🔥 每個位置 $530
 🏆 血量最大者獲得
-✨ 25周年烈空座 PSA10 ✨`
-},
+✨ 25周年烈空座 PSA10 ✨` },
 
-Car3:{
-slots:6,
-price:668,
-description:`六人合開：
+Car3:{ slots:6, price:668, description:`六人合開：
 12張不同AR + 5張MA + 1張 SAR/MUR（道具不計）
 ❗ 默認走白卡 ❗
 🔥 6人成團
-🔥 每個位置 $668（保底8包）`
-},
+🔥 每個位置 $668（保底8包）` },
 
-Car4:{
-slots:6,
-price:270,
-description:`用兩盒 M5 原膜組隊
+Car4:{ slots:6, price:270, description:`用兩盒 M5 原膜組隊
 🔥 每人 10包
-🔥 每人 $270`
-},
+🔥 每人 $270` },
 
-Car5:{
-slots:6,
-price:270,
-description:`Car5 齊齊爆開M5 6人車🛞
+Car5:{ slots:6, price:270, description:`Car5 齊齊爆開M5 6人車🛞
 🎮-玩法
 用兩盒M5原膜組隊
 🔥-每人10包
-🔥-每人$270`
-},
+🔥-每人$270` },
 
-Car6:{
-slots:6,
-price:270,
-description:`Car6 齊齊爆開M5 6人車🛞
+Car6:{ slots:6, price:270, description:`Car6 齊齊爆開M5 6人車🛞
 🎮-玩法
 用兩盒M5原膜組隊
 🔥-每人10包
-🔥-每人$270`
-}
+🔥-每人$270` },
+
+Car7:{ slots:6, price:270, description:`Car7 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270` }
 
 };
 
@@ -198,14 +180,9 @@ const {data:check}=await supabaseClient
 .eq("car",car)
 .eq("position",pos);
 
-if(check.length>0){
-alert("❌ 此位置已被報名！");
-loadData();
-return;
-}
+if(check.length>0){ alert("❌ 此位置已被報名！"); loadData(); return; }
 
-await supabaseClient
-.from("registrations")
+await supabaseClient.from("registrations")
 .insert([{name,phone,car,position:pos}]);
 
 currentRegistration={car,pos,name,phone};
@@ -245,15 +222,13 @@ container.innerHTML="";
 list.innerHTML="";
 
 Object.keys(events).forEach(car=>{
-const carRegs=registrations
-.filter(r=>r.car===car)
-.sort((a,b)=>a.position-b.position);
+const carRegs=registrations.filter(r=>r.car===car).sort((a,b)=>a.position-b.position);
 
 if(carRegs.length>0){
 const block=document.createElement("div");
 block.innerHTML=`<h3 class="text-yellow-300 font-bold mb-2">${car}</h3>`;
 carRegs.forEach(r=>{
-const phoneDisplay=isAdmin ? r.phone : "****"+r.phone.slice(-4);
+const phoneDisplay=isAdmin?r.phone:"****"+r.phone.slice(-4);
 const item=document.createElement("div");
 item.className="bg-gray-700 p-2 rounded mb-1 flex justify-between items-center";
 item.innerHTML=`<span>位置 ${r.position} - ${r.name} - 📞 ${phoneDisplay}</span>`;
@@ -279,16 +254,10 @@ box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card
 
 box.innerHTML=`
 <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-<pre class="whitespace-pre-wrap text-gray-300 mb-3">
-${events[car].description}
-</pre>
+<pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
 <p class="text-green-400 font-bold">
-${remaining===0?
-`<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`
-:
-"剩餘名額："+remaining}
-</p>
-`;
+${remaining===0?`<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`:"剩餘名額："+remaining}
+</p>`;
 
 const grid=document.createElement("div");
 grid.className="grid grid-cols-5 gap-2 mt-3";
