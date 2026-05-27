@@ -46,13 +46,11 @@
 </button>
 </div>
 
-<div id="mainPage">
-  <div id="cars"></div>
+<div id="cars"></div>
 
-  <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-    <h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
-    <div id="list" class="space-y-3 text-sm"></div>
-  </div>
+<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
+<div id="list" class="space-y-4 text-sm"></div>
 </div>
 
 </div>
@@ -68,14 +66,46 @@ const supabaseClient = supabase.createClient(
 );
 
 const events = {
-Car1:{slots:7,price:2140,description:`🔥 7人成團\n🔥 每個位置 $2140`},
-Car2:{slots:10,price:530,description:`🔥 十人成團\n🔥 每個位置 $530`},
-Car3:{slots:6,price:668,description:`🔥 6人成團\n🔥 每個位置 $668`},
-Car4:{slots:6,price:270,description:`🔥 每人10包\n🔥 每人$270`},
-Car5:{slots:6,price:270,description:`🔥 每人10包\n🔥 每人$270`},
-Car6:{slots:6,price:270,description:`🔥 每人10包\n🔥 每人$270`},
-Car7:{slots:6,price:270,description:`🔥 每人10包\n🔥 每人$270`},
-Car8:{slots:6,price:270,description:`🔥 每人10包\n🔥 每人$270`}
+
+Car1:{slots:7,price:2140,description:`🔥 7人成團
+🔥 每個位置 $2140
+🎁 包含限量特典
+🎥 直播專屬抽獎資格`},
+
+Car2:{slots:10,price:530,description:`🔥 十人成團
+🔥 每個位置 $530
+🎁 額外加碼一包
+🏆 直播互動挑戰`},
+
+Car3:{slots:6,price:668,description:`🔥 6人成團
+🔥 每個位置 $668
+🎮 對戰模式玩法
+🎁 勝出有神秘禮物`},
+
+Car4:{slots:6,price:270,description:`🔥 每人10包
+🔥 每人$270
+🎁 即場爆卡直播`},
+
+Car5:{slots:6,price:270,description:`Car5 齊齊爆開M5 6人車🛞
+🎮 兩盒M5原膜組隊
+🔥 每人10包
+🔥 每人$270`},
+
+Car6:{slots:6,price:270,description:`Car6 齊齊爆開M5 6人車🛞
+🎮 兩盒M5原膜組隊
+🔥 每人10包
+🔥 每人$270`},
+
+Car7:{slots:6,price:270,description:`Car7 齊齊爆開M5 6人車🛞
+🎮 兩盒M5原膜組隊
+🔥 每人10包
+🔥 每人$270`},
+
+Car8:{slots:6,price:270,description:`Car8 齊齊爆開M5 6人車🛞
+🎮 兩盒M5原膜組隊
+🔥 每人10包
+🔥 每人$270`}
+
 };
 
 function adminLogin(){
@@ -89,7 +119,6 @@ loadData();
 }
 
 async function register(car,pos){
-
 const name=prompt("請輸入姓名");
 const phone=prompt("請輸入電話");
 if(!name||!phone) return;
@@ -130,52 +159,11 @@ box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card
 box.innerHTML=`
 <h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
 <pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
-<p class="text-green-400 font-bold">
+<p class="text-green-400 font-bold mb-2">
 剩餘名額：${events[car].slots - taken.length}
 </p>`;
 
 const grid=document.createElement("div");
 grid.className="grid grid-cols-5 gap-2 mt-3";
 
-for(let i=1;i<=events[car].slots;i++){
-
-const occupied=taken.find(r=>r.position===i);
-
-const btn=document.createElement("button");
-btn.innerText=i;
-
-if(occupied){
-btn.className="bg-red-600 p-2 rounded text-white";
-btn.disabled=true;
-}else{
-btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-btn.onclick=()=>register(car,i);
-}
-
-grid.appendChild(btn);
-}
-
-box.appendChild(grid);
-container.appendChild(box);
-});
-
-// ✅ 名單顯示
-registrations.forEach(r=>{
-const div=document.createElement("div");
-div.className="bg-gray-700 p-2 rounded flex justify-between";
-
-div.innerHTML=`
-<span>${r.car} - 位置 ${r.position} - ${r.name} (${r.phone})</span>
-${isAdmin?`<button onclick="deleteUser(${r.id})" class="text-red-400">刪除</button>`:""}
-`;
-
-list.appendChild(div);
-});
-
-}
-
-loadData();
-
-</script>
-</body>
-</html>
+for
