@@ -9,34 +9,29 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-@keyframes glow {
-  0%,100% { text-shadow: 0 0 10px gold; }
-  50% { text-shadow: 0 0 25px orange; }
+body{background:#0b1220;}
+.car-title{color:#facc15;font-size:20px;font-weight:bold;margin-top:30px;}
+.slot-card{
+background:#374151;
+padding:14px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
-.glow { animation: glow 2s infinite; }
-
-.car-card { transition: all 0.3s ease; }
-.car-card:hover {
-  box-shadow: 0 0 25px rgba(255,215,0,0.5);
-  transform: translateY(-5px);
+.delete-btn{
+color:red;
+font-size:20px;
+cursor:pointer;
 }
-
-.full-car { animation: pulse 1.5s infinite; }
-@keyframes pulse {
-  0% { box-shadow: 0 0 5px red; }
-  50% { box-shadow: 0 0 20px red; }
-  100% { box-shadow: 0 0 5px red; }
-}
-
-.admin-mode { box-shadow: 0 0 40px gold inset; }
 </style>
 </head>
 
-<body class="text-white min-h-screen bg-gray-950">
+<body class="text-white min-h-screen">
 
-<div class="p-4 max-w-4xl mx-auto">
+<div class="p-4 max-w-3xl mx-auto">
 
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-4 glow">
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-4">
 ✨✨PkmFire車隊✨✨
 </h1>
 
@@ -55,34 +50,12 @@
 </div>
 
 <div id="mainPage">
-  <div id="cars"></div>
+<div id="cars"></div>
 
-  <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-    <h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
-    <div id="list" class="space-y-6 text-sm"></div>
-  </div>
+<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
+<h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
+<div id="list" class="space-y-6 text-sm"></div>
 </div>
-
-<div id="paymentPage" style="display:none;">
-  <div class="bg-gray-900 p-6 rounded-xl border border-yellow-500">
-    <h2 class="text-yellow-400 text-xl font-bold mb-4">✅ 報名成功</h2>
-    <div id="paymentInfo" class="mb-4"></div>
-
-    <h3 class="text-yellow-400 font-bold mb-2">💰 請完成付款</h3>
-    <p>轉數快識別碼：128392362</p>
-    <p>銀行：滙豐銀行</p>
-    <p>戶口姓名：PkmFire Limited</p>
-
-    <button onclick="sendWhatsApp()" 
-      class="mt-6 bg-green-500 text-black px-4 py-2 rounded font-bold w-full">
-      ✅ 付款完成 → WhatsApp 通知
-    </button>
-
-    <button onclick="goHome()" 
-      class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded font-bold w-full">
-      返回主頁
-    </button>
-  </div>
 </div>
 
 </div>
@@ -91,101 +64,32 @@
 
 const ADMIN_PASSWORD="pkmadmin888";
 let isAdmin=false;
-let currentRegistration={};
 
 const supabaseClient = supabase.createClient(
-  "https://mgcnadtcykoctdwwzpkm.supabase.co",
-  "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
+"https://mgcnadtcykoctdwwzpkm.supabase.co",
+"sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
-
-const events = {
-
-Car1:{slots:7,price:2140,description:`🔥 7人成團
-🔥 每個位置 $2140`},
-
-Car2:{slots:10,price:530,description:`🔥 十人成團
-🔥 每個位置 $530`},
-
-Car3:{slots:6,price:668,description:`🔥 6人成團
-🔥 每個位置 $668`},
-
-Car4:{slots:6,price:270,description:`🔥 每人10包
-🔥 每人$270`},
-
-Car5:{slots:6,price:270,description:`Car5 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`},
-
-Car6:{slots:6,price:270,description:`Car6 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`},
-
-Car7:{slots:6,price:270,description:`Car7 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`},
-
-Car8:{slots:6,price:270,description:`Car8 齊齊爆開M5 6人車🛞
-🎮-玩法
-用兩盒M5原膜組隊
-🔥-每人10包
-🔥-每人$270`}
-
-};
 
 function adminLogin(){
 const pw=prompt("請輸入管理員密碼");
 if(pw===ADMIN_PASSWORD){
 isAdmin=true;
-document.body.classList.add("admin-mode");
 alert("✅ 已進入管理模式");
 loadData();
 }
 }
 
-async function register(car,pos){
-const name=prompt("請輸入姓名");
-const phone=prompt("請輸入電話");
-if(!name||!phone) return;
-
-await supabaseClient.from("registrations")
-.insert([{name,phone,car,position:pos}]);
-
-currentRegistration={car,pos,name,phone};
-
-document.getElementById("mainPage").style.display="none";
-document.getElementById("paymentPage").style.display="block";
-
-document.getElementById("paymentInfo").innerHTML=
-`車輛：${car}<br>位置：${pos}<br>金額：$${events[car].price}`;
-}
-
-function sendWhatsApp(){
-const msg=encodeURIComponent(
-`✅ 已完成付款
-姓名:${currentRegistration.name}
-電話:${currentRegistration.phone}
-車輛:${currentRegistration.car}
-位置:${currentRegistration.pos}
-金額:$${events[currentRegistration.car].price}`
-);
-window.open(`https://wa.me/85264866544?text=${msg}`,"_blank");
-}
-
-function goHome(){
-document.getElementById("paymentPage").style.display="none";
-document.getElementById("mainPage").style.display="block";
+async function deleteRegistration(id){
+if(!isAdmin) return;
+await supabaseClient.from("registrations").delete().eq("id",id);
 loadData();
 }
 
 async function loadData(){
 
-const {data,error}=await supabaseClient.from("registrations").select("*");
+const {data,error}=await supabaseClient
+.from("registrations")
+.select("*");
 
 if(error){
 console.log(error);
@@ -194,7 +98,7 @@ return;
 
 let registrations=data||[];
 
-/* ✅ 排序：Car1→Car2，同車按位置 */
+/* ✅ 排序 */
 registrations.sort(function(a,b){
 let carA=Number((a.car||"").replace("Car",""))||0;
 let carB=Number((b.car||"").replace("Car",""))||0;
@@ -202,57 +106,40 @@ if(carA!==carB) return carA-carB;
 return (a.position||0)-(b.position||0);
 });
 
-const container=document.getElementById("cars");
 const list=document.getElementById("list");
-container.innerHTML="";
 list.innerHTML="";
 
-/* ✅ 顯示已報名名單 */
-if(registrations.length===0){
-list.innerHTML=`<div class="text-gray-400">暫時未有報名</div>`;
-}else{
+/* ✅ 分車顯示 */
+let grouped={};
+
 registrations.forEach(r=>{
+if(!grouped[r.car]) grouped[r.car]=[];
+grouped[r.car].push(r);
+});
+
+Object.keys(grouped).forEach(car=>{
+
+const title=document.createElement("div");
+title.className="car-title";
+title.innerText=car;
+list.appendChild(title);
+
+grouped[car].forEach(r=>{
 const div=document.createElement("div");
-div.className="bg-gray-700 p-3 rounded";
+div.className="slot-card mt-3";
+
 div.innerHTML=`
-姓名：${r.name}<br>
-電話：${r.phone}<br>
-車輛：${r.car}<br>
-位置：${r.position}
+<div>
+位置 ${r.position} - ${r.name} - 📞 ${r.phone}
+</div>
+${isAdmin?`<div class="delete-btn" onclick="deleteRegistration('${r.id}')">❌</div>`:""}
 `;
+
 list.appendChild(div);
 });
-}
 
-/* ✅ 保持原本車位顯示 */
-Object.keys(events).forEach(car=>{
-const taken=registrations.filter(r=>r.car===car);
-const remaining=events[car].slots-taken.length;
-
-const box=document.createElement("div");
-box.className="mb-8 bg-gray-900 p-5 rounded-xl border border-yellow-500 car-card";
-
-box.innerHTML=`
-<h2 class="text-yellow-400 font-bold text-xl mb-2">${car}</h2>
-<pre class="whitespace-pre-wrap text-gray-300 mb-3">${events[car].description}</pre>
-<p class="text-green-400 font-bold">
-${remaining===0?`<span class="full-car px-2 py-1 rounded">✅ 已滿團</span>`:"剩餘名額："+remaining}
-</p>`;
-
-const grid=document.createElement("div");
-grid.className="grid grid-cols-5 gap-2 mt-3";
-
-for(let i=1;i<=events[car].slots;i++){
-const btn=document.createElement("button");
-btn.innerText=i;
-btn.className="bg-gray-700 p-2 rounded hover:bg-yellow-500 hover:text-black";
-btn.onclick=()=>register(car,i);
-grid.appendChild(btn);
-}
-
-box.appendChild(grid);
-container.appendChild(box);
 });
+
 }
 
 loadData();
