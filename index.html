@@ -9,9 +9,30 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{background:#0b1220;}
-.car-title{color:#facc15;font-size:20px;font-weight:bold;margin-top:30px;}
-.slot-card{
+body{background:#020617;}
+.car-card{
+background:linear-gradient(145deg,#0f172a,#0b1220);
+border:2px solid gold;
+border-radius:20px;
+padding:20px;
+margin-bottom:30px;
+}
+.slot-btn{
+background:#374151;
+padding:14px;
+border-radius:10px;
+font-size:18px;
+}
+.slot-btn:hover{background:#facc15;color:black;}
+.full{
+background:black;
+color:#22c55e;
+padding:10px 20px;
+border-radius:12px;
+box-shadow:0 0 20px red;
+font-weight:bold;
+}
+.list-card{
 background:#374151;
 padding:14px;
 border-radius:12px;
@@ -21,41 +42,25 @@ align-items:center;
 }
 .delete-btn{
 color:red;
-font-size:20px;
+font-size:22px;
 cursor:pointer;
 }
 </style>
 </head>
 
-<body class="text-white min-h-screen">
+<body class="text-white">
 
-<div class="p-4 max-w-3xl mx-auto">
+<div class="p-4 max-w-4xl mx-auto">
 
-<h1 class="text-3xl font-bold text-center text-yellow-400 mb-4">
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6">
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<div class="text-center text-red-400 font-bold mb-2">
-🔥 直播時間：5月27日 晚上10:30
-</div>
-
-<div class="text-center text-yellow-300 mb-6">
-📹 直播平台：IG_pkmfire_
-</div>
-
-<div class="text-right mb-4">
-<button onclick="adminLogin()" class="text-yellow-400 underline text-sm">
-管理員登入
-</button>
-</div>
-
-<div id="mainPage">
 <div id="cars"></div>
 
-<div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
-<h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
-<div id="list" class="space-y-6 text-sm"></div>
-</div>
+<div class="mt-10 car-card">
+<h2 class="text-yellow-400 font-bold text-xl mb-4">📋 已報名名單</h2>
+<div id="list" class="space-y-4"></div>
 </div>
 
 </div>
@@ -70,13 +75,37 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
+const events={
+Car7:{slots:6,price:270,desc:`Car7 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270`},
+Car8:{slots:6,price:270,desc:`Car8 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270`}
+};
+
 function adminLogin(){
 const pw=prompt("請輸入管理員密碼");
 if(pw===ADMIN_PASSWORD){
 isAdmin=true;
-alert("✅ 已進入管理模式");
+alert("✅ 管理模式");
 loadData();
 }
+}
+
+async function register(car,pos){
+const name=prompt("請輸入姓名");
+const phone=prompt("請輸入電話");
+if(!name||!phone) return;
+
+await supabaseClient.from("registrations")
+.insert([{name,phone,car,position:pos}]);
+
+loadData();
 }
 
 async function deleteRegistration(id){
@@ -87,31 +116,56 @@ loadData();
 
 async function loadData(){
 
-const {data,error}=await supabaseClient
-.from("registrations")
-.select("*");
-
-if(error){
-console.log(error);
-return;
-}
-
+const {data}=await supabaseClient.from("registrations").select("*");
 let registrations=data||[];
 
-/* ✅ 排序 */
-registrations.sort(function(a,b){
+/* 排序 */
+registrations.sort((a,b)=>{
 let carA=Number((a.car||"").replace("Car",""))||0;
 let carB=Number((b.car||"").replace("Car",""))||0;
 if(carA!==carB) return carA-carB;
 return (a.position||0)-(b.position||0);
 });
 
+const carsDiv=document.getElementById("cars");
 const list=document.getElementById("list");
+carsDiv.innerHTML="";
 list.innerHTML="";
 
-/* ✅ 分車顯示 */
-let grouped={};
+/* === 上方卡片模式 === */
+Object.keys(events).forEach(car=>{
 
+const taken=registrations.filter(r=>r.car===car);
+const remaining=events[car].slots-taken.length;
+
+const card=document.createElement("div");
+card.className="car-card";
+
+card.innerHTML=`
+<h2 class="text-yellow-400 text-2xl font-bold mb-3">${car}</h2>
+<pre class="whitespace-pre-wrap text-gray-300 mb-4">${events[car].desc}</pre>
+${remaining<=0?
+`<div class="full">✅ 已滿團</div>`:
+`<div class="text-green-400 font-bold mb-3">剩餘名額：${remaining}</div>`}
+`;
+
+const grid=document.createElement("div");
+grid.className="grid grid-cols-5 gap-3 mt-4";
+
+for(let i=1;i<=events[car].slots;i++){
+const btn=document.createElement("button");
+btn.innerText=i;
+btn.className="slot-btn";
+btn.onclick=()=>register(car,i);
+grid.appendChild(btn);
+}
+
+card.appendChild(grid);
+carsDiv.appendChild(card);
+});
+
+/* === 下方名單模式 === */
+let grouped={};
 registrations.forEach(r=>{
 if(!grouped[r.car]) grouped[r.car]=[];
 grouped[r.car].push(r);
@@ -120,13 +174,13 @@ grouped[r.car].push(r);
 Object.keys(grouped).forEach(car=>{
 
 const title=document.createElement("div");
-title.className="car-title";
+title.className="text-yellow-400 font-bold mt-6";
 title.innerText=car;
 list.appendChild(title);
 
 grouped[car].forEach(r=>{
 const div=document.createElement("div");
-div.className="slot-card mt-3";
+div.className="list-card mt-2";
 
 div.innerHTML=`
 <div>
@@ -137,7 +191,6 @@ ${isAdmin?`<div class="delete-btn" onclick="deleteRegistration('${r.id}')">❌</
 
 list.appendChild(div);
 });
-
 });
 
 }
