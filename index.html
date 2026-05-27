@@ -59,7 +59,7 @@
 
   <div class="mt-10 bg-gray-800 p-5 rounded-xl border border-yellow-500">
     <h2 class="text-yellow-400 font-bold mb-4">📋 已報名名單</h2>
-    <div id="list" class="space-y-4 text-sm"></div>
+    <div id="list" class="space-y-6 text-sm"></div>
   </div>
 </div>
 
@@ -95,18 +95,47 @@ let currentRegistration={};
 
 const supabaseClient = supabase.createClient(
   "https://mgcnadtcykoctdwwzpkm.supabase.co",
-  "你的key"
+  "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
 const events = {
-Car1:{slots:7,price:2140,description:`🔥 7人成團 🔥 每個位置 $2140`},
-Car2:{slots:10,price:530,description:`🔥 十人成團 🔥 每個位置 $530`},
-Car3:{slots:6,price:668,description:`🔥 6人成團 🔥 每個位置 $668`},
-Car4:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
-Car5:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
-Car6:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
-Car7:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`},
-Car8:{slots:6,price:270,description:`🔥 每人10包 🔥 每人$270`}
+
+Car1:{slots:7,price:2140,description:`🔥 7人成團
+🔥 每個位置 $2140`},
+
+Car2:{slots:10,price:530,description:`🔥 十人成團
+🔥 每個位置 $530`},
+
+Car3:{slots:6,price:668,description:`🔥 6人成團
+🔥 每個位置 $668`},
+
+Car4:{slots:6,price:270,description:`🔥 每人10包
+🔥 每人$270`},
+
+Car5:{slots:6,price:270,description:`Car5 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270`},
+
+Car6:{slots:6,price:270,description:`Car6 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270`},
+
+Car7:{slots:6,price:270,description:`Car7 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270`},
+
+Car8:{slots:6,price:270,description:`Car8 齊齊爆開M5 6人車🛞
+🎮-玩法
+用兩盒M5原膜組隊
+🔥-每人10包
+🔥-每人$270`}
+
 };
 
 function adminLogin(){
@@ -156,9 +185,7 @@ loadData();
 
 async function loadData(){
 
-const { data, error } = await supabaseClient
-.from("registrations")
-.select("*");
+const {data,error}=await supabaseClient.from("registrations").select("*");
 
 if(error){
 console.log(error);
@@ -167,7 +194,7 @@ return;
 
 let registrations=data||[];
 
-/* ✅ 排序：Car1→Car2→Car3，同車按位置 */
+/* ✅ 排序：Car1→Car2，同車按位置 */
 registrations.sort(function(a,b){
 let carA=Number((a.car||"").replace("Car",""))||0;
 let carB=Number((b.car||"").replace("Car",""))||0;
@@ -180,6 +207,7 @@ const list=document.getElementById("list");
 container.innerHTML="";
 list.innerHTML="";
 
+/* ✅ 顯示已報名名單 */
 if(registrations.length===0){
 list.innerHTML=`<div class="text-gray-400">暫時未有報名</div>`;
 }else{
@@ -196,6 +224,7 @@ list.appendChild(div);
 });
 }
 
+/* ✅ 保持原本車位顯示 */
 Object.keys(events).forEach(car=>{
 const taken=registrations.filter(r=>r.car===car);
 const remaining=events[car].slots-taken.length;
