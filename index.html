@@ -56,6 +56,14 @@ border-radius:8px;
 font-weight:bold;
 cursor:pointer;
 }
+.top-info{
+background:#111827;
+border:2px solid #facc15;
+padding:20px;
+border-radius:16px;
+margin-bottom:30px;
+white-space:pre-wrap;
+}
 </style>
 </head>
 
@@ -69,6 +77,29 @@ cursor:pointer;
 ✨✨PkmFire車隊✨✨
 </h1>
 
+<!-- ✅ 新增直播 + 福利區 -->
+<div class="top-info text-gray-200">
+
+🔥 直播時間：5月29日 晚上10:00  
+📹 直播平台：IG _pkmfire_
+
+✨✨PkmFire車隊福利✨✨  
+
+✨ 為回報大家支持增設激賞活動 ✨  
+凡上車均可進入 PSA 卡抽獎活動  
+
+⚠ 今日只限：
+✅ PSA車  
+✅ M2A混能車  
+
+🏆 今期獎品：
+打喊露比卡超 PSA10  
+
+📌 每一車抽一個名額  
+📌 滿10人即抽選  
+
+</div>
+
 <div id="cars"></div>
 
 <div class="mt-10 car-card">
@@ -80,7 +111,6 @@ cursor:pointer;
 
 <script>
 
-/* ✅ 管理員密碼 */
 const ADMIN_PASSWORD="$$1234Rmb";
 let isAdmin=false;
 
@@ -89,9 +119,9 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
+/* 活動資料（不變） */
 const events={
 Car1:{slots:7,desc:`🛞Car1🛞
-🎮-玩法 開黃金禮盒混洗
 🔥-7人成團
 🔥-$2140`},
 Car2:{slots:10,desc:`🛞Car2🛞
@@ -105,7 +135,6 @@ Car4:{slots:6,desc:`Car4
 🔥-$668`}
 };
 
-/* ✅ 登入功能 */
 function adminLogin(){
 const pw=prompt("請輸入管理員密碼");
 if(pw===ADMIN_PASSWORD){
