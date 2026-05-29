@@ -45,10 +45,23 @@ color:red;
 font-size:22px;
 cursor:pointer;
 }
+.admin-btn{
+position:fixed;
+top:10px;
+right:15px;
+background:gold;
+color:black;
+padding:8px 12px;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+}
 </style>
 </head>
 
 <body class="text-white">
+
+<div class="admin-btn" onclick="adminLogin()">管理員登入</div>
 
 <div class="p-4 max-w-4xl mx-auto">
 
@@ -67,7 +80,8 @@ cursor:pointer;
 
 <script>
 
-const ADMIN_PASSWORD="pkmadmin888";
+/* ✅ 管理員密碼 */
+const ADMIN_PASSWORD="$$1234Rmb";
 let isAdmin=false;
 
 const supabaseClient = supabase.createClient(
@@ -75,68 +89,31 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* ✅ 更新活動 */
 const events={
-
-Car1:{
-slots:7,
-desc:`🛞Car1🛞
-🎮-玩法 
-開一盒黃金禮盒混洗
-獎品：
-大獎黃金比卡超x1
-二獎金球加配件x1
-五份參與獎 25周年白卡包代拆
+Car1:{slots:7,desc:`🛞Car1🛞
+🎮-玩法 開黃金禮盒混洗
 🔥-7人成團
-🔥-每個位置$2140`
-},
-
-Car2:{
-slots:10,
-desc:`🛞Car2🛞
-比卡超特典卡218/sv-p Psa10人車
-🎮-玩法
-用一盒M2A原膜組車
-每人一包M2A卡包鬥總血量
-同血補包再鬥
+🔥-$2140`},
+Car2:{slots:10,desc:`🛞Car2🛞
 🔥-10人成團
-🔥-每個位置$300
-🏆 血量最大者獲得 PSA10`
-},
-
-Car3:{
-slots:10,
-desc:`🛞Car3🛞
-SV11B黑龍SR Psa10人車
-🎮-玩法
-用一盒M2A原膜組車
-每人一包M2A卡包鬥總血量
-同血補包再鬥
+🔥-$300`},
+Car3:{slots:10,desc:`🛞Car3🛞
 🔥-10人成團
-🔥-每個位置$350
-🏆 血量最大者獲得 黑龍SAR PSA10`
-},
-
-Car4:{
-slots:6,
-desc:`Car4
-超級M2A混能車🛞
-🎮-玩法
-6人合開
-12張不同AR + 5張MA + 1張SAR/MUR先停
+🔥-$350`},
+Car4:{slots:6,desc:`Car4
 🔥-6人成團
-🔥-每個位置$668
-保底每人8包`
-}
-
+🔥-$668`}
 };
 
+/* ✅ 登入功能 */
 function adminLogin(){
 const pw=prompt("請輸入管理員密碼");
 if(pw===ADMIN_PASSWORD){
 isAdmin=true;
-alert("✅ 管理模式");
+alert("✅ 已進入管理模式");
 loadData();
+}else{
+alert("❌ 密碼錯誤");
 }
 }
 
@@ -162,7 +139,6 @@ async function loadData(){
 const {data}=await supabaseClient.from("registrations").select("*");
 let registrations=data||[];
 
-/* 排序 */
 registrations.sort((a,b)=>{
 let carA=Number((a.car||"").replace("Car",""))||0;
 let carB=Number((b.car||"").replace("Car",""))||0;
@@ -200,7 +176,7 @@ for(let i=1;i<=events[car].slots;i++){
 const btn=document.createElement("button");
 btn.innerText=i;
 
-const isTaken = taken.some(r => Number(r.position) === i);
+const isTaken=taken.some(r=>Number(r.position)===i);
 
 if(isTaken){
 btn.className="slot-btn bg-red-600 text-white cursor-not-allowed";
