@@ -106,7 +106,7 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* ✅ 每一車完整簡介 */
+/* ✅ 車隊完整簡介 */
 const events={
 
 Car1:{
@@ -127,12 +127,15 @@ desc:`🛞Car1🛞
 Car2:{
 slots:10,
 desc:`🛞Car2🛞
-比卡超特典卡 PSA10人車
+比卡超特典卡 218/SV-P PSA10人車
 
 🎮玩法：
 一盒M2A原膜
 每人一包鬥總血量
 同血補包再鬥
+
+🏆 最大血量者可獲得：
+✨ 比卡超特典卡 218/SV-P PSA10
 
 🔥 10人成團
 🔥 每個位置 $300`
@@ -141,12 +144,15 @@ desc:`🛞Car2🛞
 Car3:{
 slots:10,
 desc:`🛞Car3🛞
-黑龍 SAR PSA10人車
+SV11B 黑龍 SAR PSA10人車
 
 🎮玩法：
 一盒M2A原膜
 每人一包鬥總血量
 同血補包再鬥
+
+🏆 最大血量者可獲得：
+✨ 黑龍 SAR PSA10
 
 🔥 10人成團
 🔥 每個位置 $350`
@@ -180,7 +186,6 @@ alert("❌ 密碼錯誤");
 }
 }
 
-/* ✅ 報名後自動顯示付款方法 */
 async function register(car,pos){
 const name=prompt("請輸入姓名");
 const phone=prompt("請輸入電話");
@@ -273,7 +278,6 @@ card.appendChild(grid);
 carsDiv.appendChild(card);
 });
 
-/* 下方名單 */
 let grouped={};
 registrations.forEach(r=>{
 if(!grouped[r.car]) grouped[r.car]=[];
