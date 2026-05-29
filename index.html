@@ -77,27 +77,13 @@ white-space:pre-wrap;
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<!-- ✅ 新增直播 + 福利區 -->
 <div class="top-info text-gray-200">
-
 🔥 直播時間：5月29日 晚上10:00  
 📹 直播平台：IG _pkmfire_
 
-✨✨PkmFire車隊福利✨✨  
-
-✨ 為回報大家支持增設激賞活動 ✨  
-凡上車均可進入 PSA 卡抽獎活動  
-
-⚠ 今日只限：
-✅ PSA車  
-✅ M2A混能車  
-
-🏆 今期獎品：
-打喊露比卡超 PSA10  
-
-📌 每一車抽一個名額  
-📌 滿10人即抽選  
-
+✨PkmFire車隊福利✨  
+凡上車可進入PSA抽獎活動  
+（今日只限PSA車及M2A混能車）
 </div>
 
 <div id="cars"></div>
@@ -119,20 +105,11 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* 活動資料（不變） */
 const events={
-Car1:{slots:7,desc:`🛞Car1🛞
-🔥-7人成團
-🔥-$2140`},
-Car2:{slots:10,desc:`🛞Car2🛞
-🔥-10人成團
-🔥-$300`},
-Car3:{slots:10,desc:`🛞Car3🛞
-🔥-10人成團
-🔥-$350`},
-Car4:{slots:6,desc:`Car4
-🔥-6人成團
-🔥-$668`}
+Car1:{slots:7,desc:`🛞Car1🛞 🔥7人成團 🔥$2140`},
+Car2:{slots:10,desc:`🛞Car2🛞 🔥10人成團 🔥$300`},
+Car3:{slots:10,desc:`🛞Car3🛞 🔥10人成團 🔥$350`},
+Car4:{slots:6,desc:`🛞Car4🛞 🔥6人成團 🔥$668`}
 };
 
 function adminLogin(){
@@ -146,6 +123,7 @@ alert("❌ 密碼錯誤");
 }
 }
 
+/* ✅ 報名後自動顯示付款資料 */
 async function register(car,pos){
 const name=prompt("請輸入姓名");
 const phone=prompt("請輸入電話");
@@ -153,6 +131,23 @@ if(!name||!phone) return;
 
 await supabaseClient.from("registrations")
 .insert([{name,phone,car,position:pos}]);
+
+alert(
+`✅ 報名成功！
+
+✨付款銀行✨
+轉數快識別碼: 128392362
+銀行: 滙豐銀行
+戶口姓名: PkmFire Limited
+
+請提供：
+✅ 付款截圖
+✅ 報名 ${car}
+✅ 車位 ${pos}
+
+WhatsApp 發送至:
+📲 64866544`
+);
 
 loadData();
 }
@@ -180,7 +175,6 @@ const list=document.getElementById("list");
 carsDiv.innerHTML="";
 list.innerHTML="";
 
-/* 上方卡片 */
 Object.keys(events).forEach(car=>{
 
 const taken=registrations.filter(r=>r.car===car);
@@ -230,7 +224,6 @@ grouped[r.car].push(r);
 });
 
 Object.keys(grouped).forEach(car=>{
-
 const title=document.createElement("div");
 title.className="text-yellow-400 font-bold mt-6";
 title.innerText=car;
