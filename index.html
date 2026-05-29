@@ -55,6 +55,7 @@ padding:8px 12px;
 border-radius:8px;
 font-weight:bold;
 cursor:pointer;
+z-index:999;
 }
 .top-info{
 background:#111827;
@@ -82,8 +83,8 @@ white-space:pre-wrap;
 📹 直播平台：IG _pkmfire_
 
 ✨PkmFire車隊福利✨  
-凡上車可進入PSA抽獎活動  
-（今日只限PSA車及M2A混能車）
+凡上車可進入 PSA 卡抽獎活動  
+（今日只限 PSA 車 及 M2A 混能車）
 </div>
 
 <div id="cars"></div>
@@ -105,11 +106,67 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
+/* ✅ 每一車完整簡介 */
 const events={
-Car1:{slots:7,desc:`🛞Car1🛞 🔥7人成團 🔥$2140`},
-Car2:{slots:10,desc:`🛞Car2🛞 🔥10人成團 🔥$300`},
-Car3:{slots:10,desc:`🛞Car3🛞 🔥10人成團 🔥$350`},
-Car4:{slots:6,desc:`🛞Car4🛞 🔥6人成團 🔥$668`}
+
+Car1:{
+slots:7,
+desc:`🛞Car1🛞
+🎮玩法：
+開一盒黃金禮盒混洗
+
+🎁獎品：
+🏆 黃金比卡超 x1
+🥈 金球加配件 x1
+🎉 25周年白卡包代拆 x5
+
+🔥 7人成團
+🔥 每個位置 $2140`
+},
+
+Car2:{
+slots:10,
+desc:`🛞Car2🛞
+比卡超特典卡 PSA10人車
+
+🎮玩法：
+一盒M2A原膜
+每人一包鬥總血量
+同血補包再鬥
+
+🔥 10人成團
+🔥 每個位置 $300`
+},
+
+Car3:{
+slots:10,
+desc:`🛞Car3🛞
+黑龍 SAR PSA10人車
+
+🎮玩法：
+一盒M2A原膜
+每人一包鬥總血量
+同血補包再鬥
+
+🔥 10人成團
+🔥 每個位置 $350`
+},
+
+Car4:{
+slots:6,
+desc:`🛞Car4🛞
+超級M2A混能車
+
+🎮玩法：
+12張不同AR
+5張MA
+1張SAR/MUR先停
+
+🔥 6人成團
+🔥 每個位置 $668
+保底每人8包`
+}
+
 };
 
 function adminLogin(){
@@ -123,7 +180,7 @@ alert("❌ 密碼錯誤");
 }
 }
 
-/* ✅ 報名後自動顯示付款資料 */
+/* ✅ 報名後自動顯示付款方法 */
 async function register(car,pos){
 const name=prompt("請輸入姓名");
 const phone=prompt("請輸入電話");
