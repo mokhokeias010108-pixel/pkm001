@@ -79,12 +79,18 @@ white-space:pre-wrap;
 </h1>
 
 <div class="top-info text-gray-200">
-🔥 直播時間：5月29日 晚上10:00  
-📹 直播平台：IG _pkmfire_
+——————————————
+🎮報名連結🎮
+🔥 直播時間：6月1日 晚上21:00 🔥
+📹 直播平台：IG_pkmfire_
+——————————————
 
-✨PkmFire車隊福利✨  
-凡上車可進入 PSA 卡抽獎活動  
-（今日只限 PSA 車 及 M2A 混能車）
+✨PkmFire車隊福利✨
+另外為回報大家支持增設激賞活動，
+凡上車可進入 PSA 卡抽獎活動
+（今日只限 PSA 車及 M2A 混能車參與）
+今期獎品：打喊露比卡超 PSA10
+每一車抽一個名額，滿10人抽選
 </div>
 
 <div id="cars"></div>
@@ -106,7 +112,7 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* ✅ 車隊完整簡介 */
+/* ✅ 更新車隊資料（Car1不變，其餘更新） */
 const events={
 
 Car1:{
@@ -127,50 +133,52 @@ desc:`🛞Car1🛞
 Car2:{
 slots:10,
 desc:`🛞Car2🛞
-比卡超特典卡 218/SV-P PSA10人車
+PokemonGo 超夢 074/071 PSA10
 
 🎮玩法：
-一盒M2A原膜
-每人一包鬥總血量
-同血補包再鬥
+🔥 十人成團
+🔥 用一盒 M5 原膜組車
+🔥 每人 3 包 M5 卡包鬥所有卡總血量
+如最大血量相同會補發一包 M2A 再鬥
 
-🏆 最大血量者可獲得：
-✨ 比卡超特典卡 218/SV-P PSA10
+🔥 每個位置 $460
 
-🔥 10人成團
-🔥 每個位置 $300`
+🏆🏆 血量最大者獲得 🏆🏆
+PokemonGo 超夢 074/071 PSA10`
 },
 
 Car3:{
 slots:10,
 desc:`🛞Car3🛞
-SV11B 黑龍 SAR PSA10人車
+比卡超 朱紫 PROMO 001/SV-P PSA10
 
 🎮玩法：
-一盒M2A原膜
-每人一包鬥總血量
-同血補包再鬥
+🔥 十人成團
+🔥 用一盒 M5 原膜組車
+🔥 每人 3 包 M5 卡包鬥所有卡總血量
+如最大血量相同會補發一包 M2A 再鬥
 
-🏆 最大血量者可獲得：
-✨ 黑龍 SAR PSA10
+🔥 每個位置 $240
 
-🔥 10人成團
-🔥 每個位置 $350`
+🏆🏆 血量最大者獲得 🏆🏆
+比卡超 朱紫 PROMO 001/SV-P PSA10`
 },
 
 Car4:{
 slots:6,
 desc:`🛞Car4🛞
-超級M2A混能車
+超級 M2A 混能車
 
 🎮玩法：
-12張不同AR
-5張MA
-1張SAR/MUR先停
+六人合開
+開出 12 張不同 AR + 5 張 MA + 1 張 SAR/MUR
+（道具不計）
+達標先停車，否則繼續開
+默認走白卡
 
 🔥 6人成團
 🔥 每個位置 $668
-保底每人8包`
+保底每人 8 包`
 }
 
 };
