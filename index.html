@@ -11,6 +11,7 @@
 <style>
 body{background:#020617;}
 
+/* 基本卡片 */
 .car-card{
 background:linear-gradient(145deg,#0f172a,#0b1220);
 border:2px solid gold;
@@ -20,14 +21,34 @@ margin-bottom:30px;
 transition:0.3s;
 }
 
+/* ✅ PSA 金色發光 */
 .psa-glow{
-box-shadow:0 0 15px gold,0 0 35px #facc15,0 0 60px gold;
+box-shadow:0 0 15px gold,0 0 40px #facc15,0 0 70px gold;
 border:2px solid #facc15;
 }
 
-.deck-glow{
-box-shadow:0 0 15px red,0 0 40px #dc2626,0 0 70px red;
+/* ✅ 黃金呼吸動畫（Car4） */
+@keyframes goldBreath{
+0%{box-shadow:0 0 10px #facc15;}
+50%{box-shadow:0 0 40px gold,0 0 80px #facc15;}
+100%{box-shadow:0 0 10px #facc15;}
+}
+
+.gold-breath{
+border:2px solid #facc15;
+animation:goldBreath 2.5s infinite ease-in-out;
+}
+
+/* ✅ 紅色脈沖動畫（100deck） */
+@keyframes redPulse{
+0%{box-shadow:0 0 10px #dc2626;}
+50%{box-shadow:0 0 60px red,0 0 120px #dc2626;}
+100%{box-shadow:0 0 10px #dc2626;}
+}
+
+.red-pulse{
 border:2px solid #dc2626;
+animation:redPulse 2s infinite ease-in-out;
 }
 
 .slot-btn{
@@ -133,29 +154,34 @@ Car1:{slots:7,desc:`🛞Car1🛞
 🔥 每個位置 $2140`},
 
 Car2:{slots:10,desc:`🛞Car2🛞
-✨ PSA10人車 ✨
+✨✨ PSA10人車 ✨✨
 🔥 十人成團
 🔥 每個位置 $458
 🏆 AR編號最大者獲得
 ✨ 25周年夢夢 PSA10 ✨`},
 
 Car3:{slots:10,desc:`🛞Car3🛞
-✨ 100deck原條爭奪戰 ✨
+✨✨ 100deck原條爭奪戰 ✨✨
 🔥 十人成團
 🔥 每個位置 $800
 🏆 血量最大者獲得
 ✨ 100deck原條 ✨`},
 
-Car5:{slots:10,desc:`🛞Car5🛞
-✨ 100deck原條組隊 ✨
-🔥 十人成團
-🔥 每個位置 $800`},
-
 Car4:{slots:6,desc:`🛞Car4🛞
-✨ 超級M2A混能車 ✨
+✨✨ 超級M2A混能車 ✨✨
+
+六人合開
+10張不同AR + 5張MA + 1張SAR/MUR
+未達標繼續開
+
 🔥 6人成團
 🔥 每個位置 $688
-保底每人9包`}
+保底每人9包`},
+
+Car5:{slots:10,desc:`🛞Car5🛞
+✨✨ 100deck原條組隊 ✨✨
+🔥 十人成團
+🔥 每個位置 $800`}
 };
 
 function adminLogin(){
@@ -205,7 +231,8 @@ const listDiv=document.getElementById("list");
 carsDiv.innerHTML="";
 listDiv.innerHTML="";
 
-Object.keys(events).forEach(car=>{
+/* ✅ 固定排序 */
+["Car1","Car2","Car3","Car4","Car5"].forEach(car=>{
 
 const taken=registrations.filter(r=>r.car===car);
 const remaining=events[car].slots-taken.length;
@@ -213,8 +240,10 @@ const remaining=events[car].slots-taken.length;
 const card=document.createElement("div");
 
 let extra="car-card";
+
 if(car==="Car2") extra+=" psa-glow";
-if(car==="Car3"||car==="Car5") extra+=" deck-glow";
+if(car==="Car4") extra+=" gold-breath";
+if(car==="Car3"||car==="Car5") extra+=" red-pulse";
 
 card.className=extra;
 
