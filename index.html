@@ -11,7 +11,6 @@
 <style>
 body{background:#020617;}
 
-/* 基本卡片 */
 .car-card{
 background:linear-gradient(145deg,#0f172a,#0b1220);
 border:2px solid gold;
@@ -21,13 +20,11 @@ margin-bottom:30px;
 transition:0.3s;
 }
 
-/* PSA 金色發光 */
 .psa-glow{
 box-shadow:0 0 20px gold,0 0 60px #facc15,0 0 100px gold;
 border:2px solid #facc15;
 }
 
-/* 黃金呼吸動畫 */
 @keyframes goldBreath{
 0%{box-shadow:0 0 10px #facc15;}
 50%{box-shadow:0 0 50px gold,0 0 120px #facc15;}
@@ -39,7 +36,6 @@ border:2px solid #facc15;
 animation:goldBreath 2.5s infinite ease-in-out;
 }
 
-/* 紅色脈沖動畫 */
 @keyframes redPulse{
 0%{box-shadow:0 0 10px #dc2626;}
 50%{box-shadow:0 0 80px red,0 0 140px #dc2626;}
@@ -233,7 +229,6 @@ const listDiv=document.getElementById("list");
 carsDiv.innerHTML="";
 listDiv.innerHTML="";
 
-/* 固定排序 */
 ["Car1","Car2","Car3","Car4","Car5"].forEach(car=>{
 
 const taken=registrations.filter(r=>r.car===car);
@@ -279,7 +274,6 @@ grid.appendChild(btn);
 card.appendChild(grid);
 carsDiv.appendChild(card);
 
-/* 名單 */
 taken.forEach(r=>{
 const item=document.createElement("div");
 item.className="list-card";
