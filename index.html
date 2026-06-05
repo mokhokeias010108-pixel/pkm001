@@ -30,7 +30,6 @@ border:2px solid #facc15;
 50%{box-shadow:0 0 50px gold,0 0 120px #facc15;}
 100%{box-shadow:0 0 10px #facc15;}
 }
-
 .gold-breath{
 border:2px solid #facc15;
 animation:goldBreath 2.5s infinite ease-in-out;
@@ -41,7 +40,6 @@ animation:goldBreath 2.5s infinite ease-in-out;
 50%{box-shadow:0 0 80px red,0 0 140px #dc2626;}
 100%{box-shadow:0 0 10px #dc2626;}
 }
-
 .red-pulse{
 border:2px solid #dc2626;
 animation:redPulse 2s infinite ease-in-out;
@@ -53,7 +51,6 @@ padding:14px;
 border-radius:10px;
 font-size:18px;
 }
-
 .slot-btn:hover{
 background:#facc15;
 color:black;
@@ -150,40 +147,60 @@ Car1:{
 slots:7,
 desc:`🛞Car1🛞
 🎮-玩法
-*開一盒黃金禮盒混洗,獎品分別為大獎黃金比卡超x1,二獎金球加配件x1,五份參與獎5包25周年白色卡包代拆每人一包{有機會開出生日比卡超,噴火龍｝｛黃金禮盒開出用燈照吾到｝*❗️❗️
+開一盒黃金禮盒混洗
+獎品分別為：
+大獎 黃金比卡超 x1
+二獎 金球加配件 x1
+五份參與獎：5包25周年白色卡包代拆（每人一包）
+有機會開出生日比卡超、噴火龍
+（黃金禮盒開出用燈照吾到）❗️❗️
 🔥-7人成團
 🔥-每個位置$2140`
 },
 
-Car2:{slots:10,desc:`🛞Car2🛞
+Car2:{
+slots:10,
+desc:`🛞Car2🛞
 ✨✨ PSA10人車 ✨✨
 🔥 十人成團
 🔥 每個位置 $458
 🏆 AR編號最大者獲得
-✨ 25周年夢夢 PSA10 ✨`},
+✨ 25周年夢夢 PSA10 ✨`
+},
 
-Car3:{slots:10,desc:`🛞Car3🛞
-✨✨ 100deck原條爭奪戰 ✨✨
-🔥 十人成團
-🔥 每個位置 $800
-🏆 血量最大者獲得
-✨ 100deck原條 ✨`},
+Car3:{
+slots:10,
+desc:`🛞Car3🛞
+✨✨100deck原條爭奪戰✨✨
+🔥十人成團
+🔥用一盒M2A原膜組車
+🔥每人一包M2A卡包鬥血量
+如血量相同者補發一包M2A散包再鬥
+🔥每個位置$800
+🏆🏆血量最大者獲得🏆🏆
+✨100deck原條✨`
+},
 
-Car4:{slots:6,desc:`🛞Car4🛞
+Car4:{
+slots:6,
+desc:`🛞Car4🛞
 ✨✨ 超級M2A混能車 ✨✨
-
 六人合開
 10張不同AR + 5張MA + 1張SAR/MUR
 未達標繼續開
-
 🔥 6人成團
 🔥 每個位置 $688
-保底每人9包`},
+保底每人9包`
+},
 
-Car5:{slots:10,desc:`🛞Car5🛞
+Car5:{
+slots:10,
+desc:`🛞Car5🛞
 ✨✨ 100deck原條組隊 ✨✨
 🔥 十人成團
-🔥 每個位置 $800`}
+🔥 每個位置 $800`
+}
+
 };
 
 function adminLogin(){
@@ -295,11 +312,11 @@ if(isAdmin){
 const del=document.createElement("div");
 del.className="delete-btn";
 del.innerText="✖";
-del.addEventListener("click",()=>{
+del.onclick=()=>{
 if(confirm("確定刪除？")){
 deleteRegistration(r.id);
 }
-});
+};
 item.appendChild(del);
 }
 
