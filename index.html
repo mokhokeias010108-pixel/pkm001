@@ -20,15 +20,13 @@ margin-bottom:30px;
 transition:0.3s;
 }
 
-/* ✅ PSA 金色閃邊 */
 .psa-glow{
-box-shadow:0 0 15px gold,0 0 30px #facc15,0 0 45px gold;
+box-shadow:0 0 15px gold,0 0 35px #facc15,0 0 60px gold;
 border:2px solid #facc15;
 }
 
-/* ✅ 100deck 紅色發光 */
 .deck-glow{
-box-shadow:0 0 15px red,0 0 30px #dc2626,0 0 50px red;
+box-shadow:0 0 15px red,0 0 40px #dc2626,0 0 70px red;
 border:2px solid #dc2626;
 }
 
@@ -38,7 +36,11 @@ padding:14px;
 border-radius:10px;
 font-size:18px;
 }
-.slot-btn:hover{background:#facc15;color:black;}
+
+.slot-btn:hover{
+background:#facc15;
+color:black;
+}
 
 .full{
 background:black;
@@ -60,7 +62,7 @@ align-items:center;
 
 .delete-btn{
 color:red;
-font-size:22px;
+font-size:20px;
 cursor:pointer;
 }
 
@@ -126,74 +128,34 @@ const supabaseClient = supabase.createClient(
 
 const events={
 
-Car1:{
-slots:7,
-desc:`🛞Car1🛞
-🎮玩法
-開一盒黃金禮盒混洗
-大獎黃金比卡超 x1
-二獎金球加配件 x1
-參與獎 25周年白卡包代拆 x5
-有機會開出生日比卡超、噴火龍
-黃金禮盒開出用燈照吾到
-
+Car1:{slots:7,desc:`🛞Car1🛞
 🔥 7人成團
-🔥 每個位置 $2140`
-},
+🔥 每個位置 $2140`},
 
-Car2:{
-slots:10,
-desc:`🛞Car2🛞
-✨✨ PSA10人車 ✨✨
-
+Car2:{slots:10,desc:`🛞Car2🛞
+✨ PSA10人車 ✨
 🔥 十人成團
-🔥 用一盒 M2A 原膜組車
-🔥 每人一包 M2A 鬥 AR 編號
 🔥 每個位置 $458
-
 🏆 AR編號最大者獲得
-✨ 25周年夢夢 PSA10 014/025 ✨`
-},
+✨ 25周年夢夢 PSA10 ✨`},
 
-Car3:{
-slots:10,
-desc:`🛞Car3🛞
-✨✨ 100deck原條爭奪戰 ✨✨
-
+Car3:{slots:10,desc:`🛞Car3🛞
+✨ 100deck原條爭奪戰 ✨
 🔥 十人成團
-🔥 用一盒 M2A 原膜組車
-🔥 每人一包 M2A 鬥血量
-血量相同補發一包再鬥
 🔥 每個位置 $800
-
 🏆 血量最大者獲得
-✨ 100deck原條 ✨`
-},
+✨ 100deck原條 ✨`},
 
-Car5:{
-slots:10,
-desc:`🛞Car5🛞
-✨✨ 100deck原條組隊 ✨✨
-
+Car5:{slots:10,desc:`🛞Car5🛞
+✨ 100deck原條組隊 ✨
 🔥 十人成團
-🔥 每人一盒 100deck（原條開出）
-🔥 每個位置 $800`
-},
+🔥 每個位置 $800`},
 
-Car4:{
-slots:6,
-desc:`🛞Car4🛞
-✨✨ 超級M2A混能車 ✨✨
-
-六人合開
-10張不同AR + 5張MA + 1張SAR/MUR
-未達標繼續開
-
+Car4:{slots:6,desc:`🛞Car4🛞
+✨ 超級M2A混能車 ✨
 🔥 6人成團
 🔥 每個位置 $688
-保底每人 9 包`
-}
-
+保底每人9包`}
 };
 
 function adminLogin(){
@@ -215,7 +177,7 @@ if(!name||!phone) return;
 await supabaseClient.from("registrations")
 .insert([{name,phone,car,position:pos}]);
 
-alert("✅ 報名成功！請完成付款並WhatsApp 64866544 提供付款截圖");
+alert("✅ 報名成功！");
 loadData();
 }
 
@@ -230,8 +192,18 @@ async function loadData(){
 const {data}=await supabaseClient.from("registrations").select("*");
 let registrations=data||[];
 
+registrations.sort((a,b)=>{
+let carA=Number((a.car||"").replace("Car",""))||0;
+let carB=Number((b.car||"").replace("Car",""))||0;
+if(carA!==carB) return carA-carB;
+return (a.position||0)-(b.position||0);
+});
+
 const carsDiv=document.getElementById("cars");
+const listDiv=document.getElementById("list");
+
 carsDiv.innerHTML="";
+listDiv.innerHTML="";
 
 Object.keys(events).forEach(car=>{
 
@@ -240,18 +212,11 @@ const remaining=events[car].slots-taken.length;
 
 const card=document.createElement("div");
 
-/* ✅ 動態發光判斷 */
-let extraClass="car-card";
+let extra="car-card";
+if(car==="Car2") extra+=" psa-glow";
+if(car==="Car3"||car==="Car5") extra+=" deck-glow";
 
-if(car==="Car2"){
-extraClass+=" psa-glow";
-}
-
-if(car==="Car3"||car==="Car5"){
-extraClass+=" deck-glow";
-}
-
-card.className=extraClass;
+card.className=extra;
 
 card.innerHTML=`
 <h2 class="text-yellow-400 text-2xl font-bold mb-3">${car}</h2>
@@ -284,6 +249,20 @@ grid.appendChild(btn);
 
 card.appendChild(grid);
 carsDiv.appendChild(card);
+
+/* 名單 */
+taken.forEach(r=>{
+const item=document.createElement("div");
+item.className="list-card";
+item.innerHTML=`
+<div>
+${r.car} - ${r.position}號位<br>
+${r.name} (${r.phone})
+</div>
+${isAdmin?`<div class="delete-btn" onclick="deleteRegistration('${r.id}')">✖</div>`:''}
+`;
+listDiv.appendChild(item);
+});
 
 });
 
