@@ -10,13 +10,28 @@
 
 <style>
 body{background:#020617;}
+
 .car-card{
 background:linear-gradient(145deg,#0f172a,#0b1220);
 border:2px solid gold;
 border-radius:20px;
 padding:20px;
 margin-bottom:30px;
+transition:0.3s;
 }
+
+/* ✅ PSA 金色閃邊 */
+.psa-glow{
+box-shadow:0 0 15px gold,0 0 30px #facc15,0 0 45px gold;
+border:2px solid #facc15;
+}
+
+/* ✅ 100deck 紅色發光 */
+.deck-glow{
+box-shadow:0 0 15px red,0 0 30px #dc2626,0 0 50px red;
+border:2px solid #dc2626;
+}
+
 .slot-btn{
 background:#374151;
 padding:14px;
@@ -24,6 +39,7 @@ border-radius:10px;
 font-size:18px;
 }
 .slot-btn:hover{background:#facc15;color:black;}
+
 .full{
 background:black;
 color:#22c55e;
@@ -32,6 +48,7 @@ border-radius:12px;
 box-shadow:0 0 20px red;
 font-weight:bold;
 }
+
 .list-card{
 background:#374151;
 padding:14px;
@@ -40,11 +57,13 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 }
+
 .delete-btn{
 color:red;
 font-size:22px;
 cursor:pointer;
 }
+
 .admin-btn{
 position:fixed;
 top:10px;
@@ -57,6 +76,7 @@ font-weight:bold;
 cursor:pointer;
 z-index:999;
 }
+
 .top-info{
 background:#111827;
 border:2px solid #facc15;
@@ -79,18 +99,10 @@ white-space:pre-wrap;
 </h1>
 
 <div class="top-info text-gray-200">
-——————————————
-🎮報名連結🎮
-🔥 直播時間：6月1日 晚上21:00 🔥
-📹 直播平台：IG_pkmfire_
-——————————————
-
 ✨PkmFire車隊福利✨
-另外為回報大家支持增設激賞活動，
-凡上車可進入 PSA 卡抽獎活動
-（今日只限 PSA 車及 M2A 混能車參與）
-今期獎品：打喊露比卡超 PSA10
-每一車抽一個名額，滿10人抽選
+今日起凡上車皆可進入 PSA 卡抽獎活動
+今期獎品：M5 原膜一盒
+每車抽一個名額，滿10人抽選
 </div>
 
 <div id="cars"></div>
@@ -112,19 +124,18 @@ const supabaseClient = supabase.createClient(
 "sb_publishable_MacSDHq4cHmkIDxDucl7kw_UqbaojcN"
 );
 
-/* ✅ 更新車隊資料（Car1不變，其餘更新） */
 const events={
 
 Car1:{
 slots:7,
 desc:`🛞Car1🛞
-🎮玩法：
+🎮玩法
 開一盒黃金禮盒混洗
-
-🎁獎品：
-🏆 黃金比卡超 x1
-🥈 金球加配件 x1
-🎉 25周年白卡包代拆 x5
+大獎黃金比卡超 x1
+二獎金球加配件 x1
+參與獎 25周年白卡包代拆 x5
+有機會開出生日比卡超、噴火龍
+黃金禮盒開出用燈照吾到
 
 🔥 7人成團
 🔥 每個位置 $2140`
@@ -133,52 +144,54 @@ desc:`🛞Car1🛞
 Car2:{
 slots:10,
 desc:`🛞Car2🛞
-PokemonGo 超夢 074/071 PSA10
+✨✨ PSA10人車 ✨✨
 
-🎮玩法：
 🔥 十人成團
-🔥 用一盒 M5 原膜組車
-🔥 每人 3 包 M5 卡包鬥所有卡總血量
-如最大血量相同會補發一包 M2A 再鬥
+🔥 用一盒 M2A 原膜組車
+🔥 每人一包 M2A 鬥 AR 編號
+🔥 每個位置 $458
 
-🔥 每個位置 $460
-
-🏆🏆 血量最大者獲得 🏆🏆
-PokemonGo 超夢 074/071 PSA10`
+🏆 AR編號最大者獲得
+✨ 25周年夢夢 PSA10 014/025 ✨`
 },
 
 Car3:{
 slots:10,
 desc:`🛞Car3🛞
-比卡超 朱紫 PROMO 001/SV-P PSA10
+✨✨ 100deck原條爭奪戰 ✨✨
 
-🎮玩法：
 🔥 十人成團
-🔥 用一盒 M5 原膜組車
-🔥 每人 3 包 M5 卡包鬥所有卡總血量
-如最大血量相同會補發一包 M2A 再鬥
+🔥 用一盒 M2A 原膜組車
+🔥 每人一包 M2A 鬥血量
+血量相同補發一包再鬥
+🔥 每個位置 $800
 
-🔥 每個位置 $240
+🏆 血量最大者獲得
+✨ 100deck原條 ✨`
+},
 
-🏆🏆 血量最大者獲得 🏆🏆
-比卡超 朱紫 PROMO 001/SV-P PSA10`
+Car5:{
+slots:10,
+desc:`🛞Car5🛞
+✨✨ 100deck原條組隊 ✨✨
+
+🔥 十人成團
+🔥 每人一盒 100deck（原條開出）
+🔥 每個位置 $800`
 },
 
 Car4:{
 slots:6,
 desc:`🛞Car4🛞
-超級 M2A 混能車
+✨✨ 超級M2A混能車 ✨✨
 
-🎮玩法：
 六人合開
-開出 12 張不同 AR + 5 張 MA + 1 張 SAR/MUR
-（道具不計）
-達標先停車，否則繼續開
-默認走白卡
+10張不同AR + 5張MA + 1張SAR/MUR
+未達標繼續開
 
 🔥 6人成團
-🔥 每個位置 $668
-保底每人 8 包`
+🔥 每個位置 $688
+保底每人 9 包`
 }
 
 };
@@ -202,23 +215,7 @@ if(!name||!phone) return;
 await supabaseClient.from("registrations")
 .insert([{name,phone,car,position:pos}]);
 
-alert(
-`✅ 報名成功！
-
-✨付款銀行✨
-轉數快識別碼: 128392362
-銀行: 滙豐銀行
-戶口姓名: PkmFire Limited
-
-請提供：
-✅ 付款截圖
-✅ 報名 ${car}
-✅ 車位 ${pos}
-
-WhatsApp 發送至:
-📲 64866544`
-);
-
+alert("✅ 報名成功！請完成付款並WhatsApp 64866544 提供付款截圖");
 loadData();
 }
 
@@ -233,17 +230,8 @@ async function loadData(){
 const {data}=await supabaseClient.from("registrations").select("*");
 let registrations=data||[];
 
-registrations.sort((a,b)=>{
-let carA=Number((a.car||"").replace("Car",""))||0;
-let carB=Number((b.car||"").replace("Car",""))||0;
-if(carA!==carB) return carA-carB;
-return (a.position||0)-(b.position||0);
-});
-
 const carsDiv=document.getElementById("cars");
-const list=document.getElementById("list");
 carsDiv.innerHTML="";
-list.innerHTML="";
 
 Object.keys(events).forEach(car=>{
 
@@ -251,7 +239,19 @@ const taken=registrations.filter(r=>r.car===car);
 const remaining=events[car].slots-taken.length;
 
 const card=document.createElement("div");
-card.className="car-card";
+
+/* ✅ 動態發光判斷 */
+let extraClass="car-card";
+
+if(car==="Car2"){
+extraClass+=" psa-glow";
+}
+
+if(car==="Car3"||car==="Car5"){
+extraClass+=" deck-glow";
+}
+
+card.className=extraClass;
 
 card.innerHTML=`
 <h2 class="text-yellow-400 text-2xl font-bold mb-3">${car}</h2>
@@ -284,33 +284,7 @@ grid.appendChild(btn);
 
 card.appendChild(grid);
 carsDiv.appendChild(card);
-});
 
-let grouped={};
-registrations.forEach(r=>{
-if(!grouped[r.car]) grouped[r.car]=[];
-grouped[r.car].push(r);
-});
-
-Object.keys(grouped).forEach(car=>{
-const title=document.createElement("div");
-title.className="text-yellow-400 font-bold mt-6";
-title.innerText=car;
-list.appendChild(title);
-
-grouped[car].forEach(r=>{
-const div=document.createElement("div");
-div.className="list-card mt-2";
-
-div.innerHTML=`
-<div>
-位置 ${r.position} - ${r.name} - 📞 ${r.phone}
-</div>
-${isAdmin?`<div class="delete-btn" onclick="deleteRegistration('${r.id}')">❌</div>`:""}
-`;
-
-list.appendChild(div);
-});
 });
 
 }
