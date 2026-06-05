@@ -20,29 +20,13 @@ margin-bottom:30px;
 transition:0.3s;
 }
 
-.psa-glow{
-box-shadow:0 0 20px gold,0 0 60px #facc15,0 0 100px gold;
-border:2px solid #facc15;
-}
-
-@keyframes goldBreath{
-0%{box-shadow:0 0 10px #facc15;}
-50%{box-shadow:0 0 50px gold,0 0 120px #facc15;}
-100%{box-shadow:0 0 10px #facc15;}
-}
-.gold-breath{
-border:2px solid #facc15;
-animation:goldBreath 2.5s infinite ease-in-out;
-}
-
-@keyframes redPulse{
-0%{box-shadow:0 0 10px #dc2626;}
-50%{box-shadow:0 0 80px red,0 0 140px #dc2626;}
-100%{box-shadow:0 0 10px #dc2626;}
-}
-.red-pulse{
-border:2px solid #dc2626;
-animation:redPulse 2s infinite ease-in-out;
+.payment-card{
+background:#111827;
+border:2px solid #22c55e;
+border-radius:20px;
+padding:25px;
+margin-top:40px;
+box-shadow:0 0 30px #22c55e;
 }
 
 .slot-btn{
@@ -93,15 +77,6 @@ font-weight:bold;
 cursor:pointer;
 z-index:999;
 }
-
-.top-info{
-background:#111827;
-border:2px solid #facc15;
-padding:20px;
-border-radius:16px;
-margin-bottom:30px;
-white-space:pre-wrap;
-}
 </style>
 </head>
 
@@ -115,18 +90,32 @@ white-space:pre-wrap;
 ✨✨PkmFire車隊✨✨
 </h1>
 
-<div class="top-info text-gray-200">
-✨PkmFire車隊福利✨
-今日起凡上車皆可進入 PSA 卡抽獎活動
-今期獎品：M5 原膜一盒
-每車抽一個名額，滿10人抽選
-</div>
-
 <div id="cars"></div>
 
 <div class="mt-10 car-card">
 <h2 class="text-yellow-400 font-bold text-xl mb-4">📋 已報名名單</h2>
 <div id="list" class="space-y-4"></div>
+</div>
+
+<!-- ✅ 付款區 -->
+<div id="paymentSection" class="payment-card">
+<h2 class="text-2xl font-bold text-green-400 mb-4">💰 付款方法</h2>
+
+<p class="mb-3">
+✅ FPS / 轉數快<br>
+電話：9123 4567<br>
+名稱：PkmFire
+</p>
+
+<p class="mb-3">
+✅ 銀行轉帳<br>
+銀行：HSBC<br>
+戶口號碼：123-456-789
+</p>
+
+<p class="text-red-400 font-bold">
+⚠️ 付款後請截圖並聯絡管理員確認
+</p>
 </div>
 
 </div>
@@ -148,24 +137,22 @@ slots:7,
 desc:`🛞Car1🛞
 🎮-玩法
 開一盒黃金禮盒混洗
-獎品分別為：
 大獎 黃金比卡超 x1
 二獎 金球加配件 x1
-五份參與獎：5包25周年白色卡包代拆（每人一包）
+五份參與獎 25周年白色卡包代拆（每人一包）
 有機會開出生日比卡超、噴火龍
-（黃金禮盒開出用燈照吾到）❗️❗️
-🔥-7人成團
-🔥-每個位置$2140`
+🔥7人成團
+🔥每個位置$2140`
 },
 
 Car2:{
 slots:10,
 desc:`🛞Car2🛞
-✨✨ PSA10人車 ✨✨
-🔥 十人成團
-🔥 每個位置 $458
-🏆 AR編號最大者獲得
-✨ 25周年夢夢 PSA10 ✨`
+✨✨PSA10人車✨✨
+🔥十人成團
+🔥每個位置$458
+🏆AR編號最大者獲得
+✨25周年夢夢PSA10✨`
 },
 
 Car3:{
@@ -175,30 +162,29 @@ desc:`🛞Car3🛞
 🔥十人成團
 🔥用一盒M2A原膜組車
 🔥每人一包M2A卡包鬥血量
-如血量相同者補發一包M2A散包再鬥
+如血量相同補發一包再鬥
 🔥每個位置$800
-🏆🏆血量最大者獲得🏆🏆
+🏆血量最大者獲得
 ✨100deck原條✨`
 },
 
 Car4:{
 slots:6,
 desc:`🛞Car4🛞
-✨✨ 超級M2A混能車 ✨✨
+✨✨超級M2A混能車✨✨
 六人合開
 10張不同AR + 5張MA + 1張SAR/MUR
 未達標繼續開
-🔥 6人成團
-🔥 每個位置 $688
-保底每人9包`
+🔥6人成團
+🔥每個位置$688`
 },
 
 Car5:{
 slots:10,
 desc:`🛞Car5🛞
-✨✨ 100deck原條組隊 ✨✨
-🔥 十人成團
-🔥 每個位置 $800`
+✨✨100deck原條組隊✨✨
+🔥十人成團
+🔥每個位置$800`
 }
 
 };
@@ -222,8 +208,14 @@ if(!name||!phone) return;
 await supabaseClient.from("registrations")
 .insert([{name,phone,car,position:pos}]);
 
-alert("✅ 報名成功！");
+alert("✅ 報名成功！請完成付款");
+
 loadData();
+
+setTimeout(()=>{
+document.getElementById("paymentSection")
+.scrollIntoView({behavior:"smooth"});
+},300);
 }
 
 async function deleteRegistration(id){
@@ -257,13 +249,7 @@ const taken=registrations.filter(r=>r.car===car);
 const remaining=events[car].slots-taken.length;
 
 const card=document.createElement("div");
-
-let extra="car-card";
-if(car==="Car2") extra+=" psa-glow";
-if(car==="Car4") extra+=" gold-breath";
-if(car==="Car3"||car==="Car5") extra+=" red-pulse";
-
-card.className=extra;
+card.className="car-card";
 
 card.innerHTML=`
 <h2 class="text-yellow-400 text-2xl font-bold mb-3">${car}</h2>
