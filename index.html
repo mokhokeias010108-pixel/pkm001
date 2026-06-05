@@ -1,3 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PkmFire車隊</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{background:#020617;}
+
+/* 基本卡片 */
+.car-card{
+background:linear-gradient(145deg,#0f172a,#0b1220);
+border:2px solid gold;
+border-radius:20px;
+padding:20px;
+margin-bottom:30px;
+transition:0.3s;
+}
+
+/* PSA 金色發光 */
+.psa-glow{
+box-shadow:0 0 20px gold,0 0 60px #facc15,0 0 100px gold;
+border:2px solid #facc15;
+}
+
+/* 黃金呼吸動畫 */
+@keyframes goldBreath{
+0%{box-shadow:0 0 10px #facc15;}
+50%{box-shadow:0 0 50px gold,0 0 120px #facc15;}
+100%{box-shadow:0 0 10px #facc15;}
+}
+
+.gold-breath{
+border:2px solid #facc15;
+animation:goldBreath 2.5s infinite ease-in-out;
+}
+
+/* 紅色脈沖動畫 */
+@keyframes redPulse{
+0%{box-shadow:0 0 10px #dc2626;}
+50%{box-shadow:0 0 80px red,0 0 140px #dc2626;}
+100%{box-shadow:0 0 10px #dc2626;}
+}
+
+.red-pulse{
+border:2px solid #dc2626;
+animation:redPulse 2s infinite ease-in-out;
+}
+
+.slot-btn{
+background:#374151;
+padding:14px;
+border-radius:10px;
+font-size:18px;
+}
+
+.slot-btn:hover{
+background:#facc15;
+color:black;
+}
+
+.full{
+background:black;
+color:#22c55e;
+padding:10px 20px;
+border-radius:12px;
+box-shadow:0 0 20px red;
+font-weight:bold;
+}
+
+.list-card{
+background:#374151;
+padding:14px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.delete-btn{
+color:red;
+font-size:20px;
+cursor:pointer;
+margin-left:15px;
+}
+
+.admin-btn{
+position:fixed;
+top:10px;
+right:15px;
+background:gold;
+color:black;
+padding:8px 12px;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+z-index:999;
+}
+
+.top-info{
+background:#111827;
+border:2px solid #facc15;
+padding:20px;
+border-radius:16px;
+margin-bottom:30px;
+white-space:pre-wrap;
+}
+</style>
+</head>
+
+<body class="text-white">
+
+<div class="admin-btn" onclick="adminLogin()">管理員登入</div>
+
+<div class="p-4 max-w-4xl mx-auto">
+
+<h1 class="text-3xl font-bold text-center text-yellow-400 mb-6">
+✨✨PkmFire車隊✨✨
+</h1>
+
+<div class="top-info text-gray-200">
+✨PkmFire車隊福利✨
+今日起凡上車皆可進入 PSA 卡抽獎活動
+今期獎品：M5 原膜一盒
+每車抽一個名額，滿10人抽選
+</div>
+
+<div id="cars"></div>
+
+<div class="mt-10 car-card">
+<h2 class="text-yellow-400 font-bold text-xl mb-4">📋 已報名名單</h2>
+<div id="list" class="space-y-4"></div>
+</div>
+
+</div>
+
 <script>
 
 const ADMIN_PASSWORD="$$1234Rmb";
@@ -9,6 +149,7 @@ const supabaseClient = supabase.createClient(
 );
 
 const events={
+
 Car1:{slots:7,desc:`🛞Car1🛞
 🔥 7人成團
 🔥 每個位置 $2140`},
@@ -71,7 +212,6 @@ async function deleteRegistration(id){
 await supabaseClient.from("registrations")
 .delete()
 .eq("id",id);
-
 loadData();
 }
 
@@ -93,6 +233,7 @@ const listDiv=document.getElementById("list");
 carsDiv.innerHTML="";
 listDiv.innerHTML="";
 
+/* 固定排序 */
 ["Car1","Car2","Car3","Car4","Car5"].forEach(car=>{
 
 const taken=registrations.filter(r=>r.car===car);
@@ -138,7 +279,7 @@ grid.appendChild(btn);
 card.appendChild(grid);
 carsDiv.appendChild(card);
 
-/* ✅ 名單顯示 */
+/* 名單 */
 taken.forEach(r=>{
 const item=document.createElement("div");
 item.className="list-card";
@@ -151,7 +292,6 @@ ${r.name} (${r.phone})
 
 item.appendChild(info);
 
-/* ✅ 管理員才顯示刪除 */
 if(isAdmin){
 const del=document.createElement("div");
 del.className="delete-btn";
@@ -174,3 +314,5 @@ listDiv.appendChild(item);
 loadData();
 
 </script>
+</body>
+</html>
